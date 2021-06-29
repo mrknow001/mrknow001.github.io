@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta content="IE=edge" http-equiv="X-UA-Compatible">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <title>Web Security Blog - PortSwigger</title>
+
+        <meta name="description" content="Articles and product insights from the PortSwigger team. Keep up to date with Burp Suite and the world of web security by visiting our blog.">
+        
+<!-- Twitter data -->
+            <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@PortSwigger">
+<meta name="twitter:title" content="PortSwigger Blog">
+<meta name="twitter:image" content="https://portswigger.net/content/images/logos/portswigger-twittercardlogo.png">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="PortSwigger Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://portswigger.net/blog" />
+<meta property="og:image" content="https://portswigger.net/content/images/logos/portswigger-twittercardlogo.png" />
+    <meta property="og:site_name" content="Web Security Blog" />
+
+        <link rel="canonical" href="https://portswigger.net/blog"/>
+        <link href="/content/images/logos/favicon.ico" rel="icon" type="image/x-icon"/>
+        <link href="/content/images/logos/apple-touch-icon.png" rel="apple-touch-icon">
+        <link href="/content/psblog.css" rel="stylesheet" type="text/css">
+        <link rel="preload" href="/Content/Fonts/ps-icons-small/ps-icons-small.woff?td2uot" as="font" crossorigin="anonymous">
+<link rel="preload" href="/Content/Fonts/ps-main/ps-icons.woff?l1la2n" as="font" crossorigin="anonymous">
+    </head>
+    <body class="theme-blog">
+        
+        <header class="page-header" id="top">
+            
+<div class="container">
+    <a class="logo" href="/"></a>
+    <div class="header-right">
+        <div class="login-buttons">
+                <a class="button-orange-small" href="/users">Login</a>
+        </div>
+
+
+    <input type="checkbox" id="hamburger-mobile" class="hamburger-input-mobile">
+    <input type="radio" id="hamburger-desktop" class="hamburger-input-desktop" name="mega-nav-input">
+    <div class="hamburger-menu-mobile">
+        <label class="hamburger-menu-label header-hidden" for="hamburger-mobile">
+            <span class="hamburger-layers"></span>
+        </label>
+    </div>
+    <div class="mega-nav">
+        <input type="radio" id="mega-nav-close" class="mega-nav-input-close" name="mega-nav-input">
+        <input type="radio" id="mega-nav-label-1" class="mega-nav-input-1" name="mega-nav-input">
+        <input type="radio" id="mega-nav-label-2" class="mega-nav-input-2" name="mega-nav-input">
+        <input type="radio" id="mega-nav-label-6" class="mega-nav-input-6" name="mega-nav-input">
+        <input type="radio" id="mega-nav-label-7" class="mega-nav-input-7" name="mega-nav-input">
+
+        <label for="mega-nav-close" class="mega-nav-close"></label>
+
+        <label class="mega-nav-label mega-nav-label-1" for="mega-nav-label-1">
+            <span class="mega-nav-text">Products</span>
+            <span class="icon-arrow-head-down"></span>
+        </label>
+        <label class="mega-nav-label mega-nav-label-2" for="mega-nav-label-2">
+            <span class="mega-nav-text">Solutions</span>
+            <span class="icon-arrow-head-down"></span>
+        </label>
+        <a class="mega-nav-link" href="/research"><span class="mega-nav-text">Research</span></a>
+        <a class="mega-nav-link" href="/web-security"><span class="mega-nav-text">Academy</span></a>
+        <a class="mega-nav-link" href="/daily-swig"><span class="mega-nav-text">Daily Swig</span></a>
+        <label class="mega-nav-label mega-nav-label-6" for="mega-nav-label-6">
+            <span class="mega-nav-text">Support</span>
+            <span class="icon-arrow-head-down"></span>
+        </label>
+
+        <label class="mega-nav-label mega-nav-label-7 header-hidden" for="mega-nav-label-7">
+            <span class="mega-nav-text">Company</span>
+            <span class="icon-arrow-head-down"></span>
+        </label>
+        <div class="hamburger-menu-desktop">
+            <label class="hamburger-menu-label header-show" for="hamburger-desktop">
+                <span class="hamburger-layers"></span>
+            </label>
+            <div>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-1" href="/customers"><span class="mega-nav-text">Customers</span></a>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-2" href="/about"><span class="mega-nav-text">About</span></a>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-3" href="/blog"><span class="mega-nav-text">Blog</span></a>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-4" href="/careers"><span class="mega-nav-text">Careers</span></a>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-5" href="/legal"><span class="mega-nav-text">Legal</span></a>
+                <a class="hamburger-menu-desktop-link hamburger-menu-desktop-link-6" href="/contact"><span class="mega-nav-text">Contact</span></a>
+            </div>
+        </div>
+
+        <a class="mega-nav-link header-hidden" href="/users/youraccount"><span class="mega-nav-text">My account</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-1" href="/customers"><span class="mega-nav-text">Customers</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-2" href="/about"><span class="mega-nav-text">About</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-3" href="/blog"><span class="mega-nav-text">Blog</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-4" href="/careers"><span class="mega-nav-text">Careers</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-5" href="/legal"><span class="mega-nav-text">Legal</span></a>
+        <a class="hamburger-menu-link hamburger-menu-link-6" href="/contact"><span class="mega-nav-text">Contact</span></a>
+
+        <div class="mega-nav-container">
+
+            <div class="mega-nav-content mega-nav-content-1">
+                <div class="section-white-medium-no-padding">
+                    <div class="container-columns-66-percent-right">
+                        <div>
+                            <a href="/burp/enterprise" class="link-block-white">
+                                <img src="/content/images/svg/icons/enterprise.svg" alt="Burp Suite Enterprise Edition">
+                                <span><strong>Burp Suite Enterprise Edition</strong></span>
+                                <span>The enterprise-enabled web vulnerability scanner.</span>
+                            </a>
+
+                            <a href="/burp/pro" class="link-block-white">
+                                <img src="/content/images/svg/icons/professional.svg" alt="Burp Suite Professional">
+                                <span><strong>Burp Suite Professional</strong></span>
+                                <span>The world's #1 web penetration testing toolkit.</span>
+                            </a>
+
+                            <a href="/burp/communitydownload" class="link-block-white">
+                                <img src="/content/images/svg/icons/community.svg" alt="Burp Suite Community Edition">
+                                <span><strong>Burp Suite Community Edition</strong></span>
+                                <span>The best manual tools to start web security testing.</span>
+                            </a>
+
+                            <a href="/burp" class="chevron-after">View all product editions</a>
+                        </div>
+
+                        <div>
+                            <div class="container-cards-lists-white">
+                                <a href="/burp/vulnerability-scanner">
+                                    <p><strong>Burp Scanner</strong></p>
+                                    <p>Learn how Burp's innovative scanning engine finds more bugs, more quickly.</p>
+                                    <img src="/content/images/callouts/burp-scanner.jpg" alt="Burp Scanner">
+                                </a>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="mega-nav-content mega-nav-content-2">
+                <div class="section-white-medium-no-padding">
+                    <div class="container-columns-66-percent-right">
+                        <div>
+                            <div class="container-columns">
+                                <a href="/solutions" class="link-block-white">
+                                    <span><strong>Application Security Testing</strong></span>
+                                    <span>See how our software enables the world to secure the web.</span>
+                                </a>
+                                <a href="/solutions/devsecops" class="link-block-white">
+                                    <span><strong>DevSecOps</strong></span>
+                                    <span>Catch critical bugs; ship more secure software, more quickly.</span>
+                                </a>
+
+                                <a href="/solutions/penetration-testing" class="link-block-white">
+                                    <span><strong>Penetration Testing</strong></span>
+                                    <span>Accelerate penetration testing - find more bugs, more quickly.</span>
+                                </a>
+                                <a href="/solutions/automated-security-testing" class="link-block-white">
+                                    <span><strong>Automated Scanning</strong></span>
+                                    <span>Scale dynamic scanning. Reduce risk. Save time/money.</span>
+                                </a>
+
+                                <a href="/solutions/bug-bounty-hunting" class="link-block-white">
+                                    <span><strong>Bug Bounty Hunting</strong></span>
+                                    <span>Level up your hacking and earn more bug bounties.</span>
+                                </a>
+                                <a href="/solutions/compliance" class="link-block-white">
+                                    <span><strong>Compliance</strong></span>
+                                    <span>Enhance security monitoring to comply with confidence.</span>
+                                </a>
+                            </div>
+                            <a href="/solutions" class="chevron-after">View all solutions</a>
+                        </div>
+
+                        <div>
+                            <div class="container-cards-lists-white">
+                                <a href="/burp/enterprise">
+                                    <p><strong>Burp Suite Enterprise Edition</strong></p>
+                                    <p>Scan it all. Unleash AppSec. Supercharge engineering. Power DevSecOps.</p>
+                                    <img src="/content/images/callouts/enterprise.jpg" alt="Burp Suite Enterprise Edition">
+                                </a>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="mega-nav-content mega-nav-content-6">
+                <div class="section-white-medium-no-padding">
+                    <div class="container-columns-66-percent-right">
+                        <div>
+                            <div class="container-columns">
+                                <a href="/support" class="link-block-white">
+                                    <span><strong>Support Center</strong></span>
+                                    <span>Get help and advice from our experts on all things Burp.</span>
+                                </a>
+                                <a href="/burp/documentation" class="link-block-white">
+                                    <span><strong>Documentation</strong></span>
+                                    <span>Browse full documentation for all Burp Suite products.</span>
+                                </a>
+                                <a href="/burp/documentation/desktop/getting-started" class="link-block-white">
+                                    <span><strong>Get Started - Professional</strong></span>
+                                    <span>Get started with Burp Suite Professional.</span>
+                                </a>
+                                <a href="/burp/documentation/enterprise/" class="link-block-white">
+                                    <span><strong>Get Started - Enterprise</strong></span>
+                                    <span>Get started with Burp Suite Enterprise Edition.</span>
+                                </a>
+
+                                <a href="/burp/releases" class="link-block-white">
+                                    <span><strong>Releases</strong></span>
+                                    <span>See the latest Burp Suite features and innovations.</span>
+                                </a>
+                                <a href="https://forum.portswigger.net/" class="link-block-white">
+                                    <span><strong>User Forum</strong></span>
+                                    <span>Get your questions answered in the User Forum.</span>
+                                </a>
+                            </div>
+                            <a href="/support" class="chevron-after">Visit the Support Center</a>
+                        </div>
+
+                        <div>
+                            <div class="container-cards-lists-white">
+                                <a href="/burp/enterprise">
+                                    <p><strong>Burp Suite Enterprise Edition</strong></p>
+                                    <p>Scan it all. Unleash AppSec. Supercharge engineering. Power DevSecOps.</p>
+                                    <img src="/content/images/callouts/enterprise.jpg" alt="Burp Suite Enterprise Edition">
+                                </a>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
+</div>
+        </header>
+        <section class="banner-container blog">
+            <div class="container">
+                <div class="titlecontainer">
+                        <h1>PortSwigger Blog</h1>
+                </div>
+                <div class="linkscontainer">
+                    <a class="icon-ps-twitter is-icon" href="https://twitter.com/PortSwigger"></a>
+                    <a href="/blog/rss" class="icon-ps-rss is-rss is-icon "></a>
+                </div>
+            </div>
+        </section>
+        
+
+<div class="notify-page information-green">
+    <div class="notify-logo"></div>
+    <div class="notify-message">
+        Looking for our research? We've moved it to a <a class="chevron-after" href="/research">dedicated page</a>
+    </div>
+</div>
+<section class="maincontainer blog is-tilecontainer">
+    <div class="container">
+        <div id="infiniteScroller" class="cmsinfinitescroller" init-infinitescroller data-url="/blog/data" data-archiveurl="/blog/archive">
+        </div>
+        <noscript>
+            <div class="noscript-container">
+                <div class="noscript-warning">This page requires JavaScript for an enhanced user experience.</div>
+                <div class="noscript-lateststories">Latest Posts</div>
+<div class="noscript-postlist">
+        <a href="/blog/simplified-cloud-deployment-for-burp-suite-enterprise-edition" class="noscript-post">
+            <span class="main">Simplified cloud deployment for Burp Suite Enterprise Edition</span>
+            <span class="sub">
+                26 March 2021 at 14:40 UTC
+            </span>
+        </a>
+        <a href="/blog/portswigger-teams-up-with-hackerone-for-appsec-workshop-6-april" class="noscript-post">
+            <span class="main">PortSwigger teams up with HackerOne for AppSec workshop - 6 April</span>
+            <span class="sub">
+                25 March 2021 at 14:37 UTC
+            </span>
+        </a>
+        <a href="/blog/improved-ci-cd-integrations-in-burp-suite-enterprise-edition" class="noscript-post">
+            <span class="main">Improved CI/CD integrations in Burp Suite Enterprise Edition</span>
+            <span class="sub">
+                23 March 2021 at 15:15 UTC
+            </span>
+        </a>
+        <a href="/blog/browser-powered-scanning-in-burp-suite" class="noscript-post">
+            <span class="main">Browser powered scanning in Burp Suite</span>
+            <span class="sub">
+                22 March 2021 at 14:29 UTC
+            </span>
+        </a>
+        <a href="/blog/api-scanning-with-burp-suite" class="noscript-post">
+            <span class="main"><span>API Scanning with Burp Suite</span></span>
+            <span class="sub">
+                11 March 2021 at 16:08 UTC
+            </span>
+        </a>
+        <a href="/blog/web-application-cartography-mapping-out-burp-suites-crawler" class="noscript-post">
+            <span class="main">Web application cartography: mapping out Burp Suite’s crawler</span>
+            <span class="sub">
+                05 March 2021 at 15:07 UTC
+            </span>
+        </a>
+        <a href="/blog/7-burp-suite-professional-exclusive-features-to-help-you-test-smarter" class="noscript-post">
+            <span class="main"><span>7 Burp Suite Professional-exclusive features to help you test smarter</span></span>
+            <span class="sub">
+                26 February 2021 at 15:25 UTC
+            </span>
+        </a>
+        <a href="/blog/burp-suite-professional-become-an-early-adopter" class="noscript-post">
+            <span class="main">Burp Suite Professional: become an early adopter</span>
+            <span class="sub">
+                19 February 2021 at 14:45 UTC
+            </span>
+        </a>
+        <a href="/blog/what-are-appsec-leaders-prioritizing-in-2021-the-survey-results-are-in" class="noscript-post">
+            <span class="main">What are AppSec leaders prioritizing in 2021? The survey results are in.</span>
+            <span class="sub">
+                18 February 2021 at 15:28 UTC
+            </span>
+        </a>
+        <a href="/blog/flying-high-in-the-web-security-academy" class="noscript-post">
+            <span class="main">Flying high in the Web Security Academy</span>
+            <span class="sub">
+                10 February 2021 at 15:46 UTC
+            </span>
+        </a>
+</div>
+            </div>
+            <a href="/blog/archive" class="tile-archive blog">
+                <span class="tile-text1">For older posts, click here to visit our archive.</span>
+            </a>
+        </noscript>
+        <a id="archiveTile" href="/blog/archive" class="tile-archive blog is-tileview is-hidden">
+            <span class="tile-text1">For older posts, click here to visit our archive.</span>
+        </a>
+    </div>
+</section>
+
+<script async src="/bundles/cms/blog?v=FViSQxd-Wm5oZgQt67Hkdx5AdrXUAdffW4hSies704M1" nonce="wwPWw+mMBrJ478o3VzMniCrcjPLZEGhI"></script>
+
+        <section class="prefootercontainer blog"></section>
+        
+    <footer class="wrapper">
+        <div class="container">
+            <div>
+                <p>Burp Suite</p>
+                <a href="/burp/vulnerability-scanner">Web vulnerability scanner</a>
+                <a href="/burp">Burp Suite Editions</a>
+                <a href="/burp/releases">Release Notes</a>
+            </div>
+            <div>
+                <p>Vulnerabilities</p>
+                <a href="/web-security/cross-site-scripting">Cross-site scripting (XSS)</a>
+                <a href="/web-security/sql-injection">SQL injection</a>
+                <a href="/web-security/csrf">Cross-site request forgery</a>
+                <a href="/web-security/xxe">XML external entity injection</a>
+                <a href="/web-security/file-path-traversal">Directory traversal</a>
+                <a href="/web-security/ssrf">Server-side request forgery</a>
+            </div>
+            <div>
+                <p>Customers</p>
+                <a href="/organizations">Organizations</a>
+                <a href="/testers">Testers</a>
+                <a href="/developers">Developers</a>
+            </div>
+            <div>
+                <p>Company</p>
+                <a href="/about">About</a>
+                <a href="/news">PortSwigger News</a>
+                <a href="/careers">Careers</a>
+                <a href="/about/contact">Contact</a>
+                <a href="/legal">Legal</a>
+                <a href="/privacy">Privacy Notice</a>
+            </div>
+            <div>
+                <p>Insights</p>
+                <a href="/web-security">Web Security Academy</a>
+                <a href="/blog">Blog</a>
+                <a href="/research">Research</a>
+                <a href="/daily-swig">The Daily Swig</a>
+            </div>
+            <div>
+                <a href="/"><img src="/content/images/logos/portswigger-logo.svg" alt="PortSwigger Logo" class="footer-logo"></a>
+                <a class="button-outline-blue-small camelcase" href="https://twitter.com/Burp_Suite" rel="noreferrer"><span class="icon-twitter"></span>  Follow us</a>
+                <p class="grey">&copy; 2021 PortSwigger Ltd.</p>
+            </div>
+        </div>
+    </footer>
+    <a href="#top" class="back-to-top"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26"><polygon points="4.07 14.7 5.03 15.78 12.48 9.13 19.94 15.78 20.9 14.7 12.48 7.2 4.07 14.7" fill="#f63" /><path d="M13,0A13,13,0,1,0,26,13,13,13,0,0,0,13,0Zm0,24.56A11.56,11.56,0,1,1,24.56,13,11.58,11.58,0,0,1,13,24.56Z" fill="#f63" /></svg></a>
+
+    </body>
+</html>

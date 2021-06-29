@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="BurpSuite插件开发指南之Java篇0x00 Java 接口简介知其然更要知其所以然。在真正动手编写 Burp 插件之前，有必要对Burp提供的各个接口有一定的了解，同时要有一定的编程经验和能力。那么，在此篇中读者则有必要了解 Java 的接口技术。 接口（英文：Interface）在 Java 编程语言中是一个比较抽象的东西。熟悉 OOP 的同学可以用“类”的思想来理解接口。但是，要明白的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BurpSuite插件开发指南之Java篇">
+<meta property="og:url" content="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BJava%E7%AF%87/index.html">
+<meta property="og:site_name" content="一灯和尚">
+<meta property="og:description" content="BurpSuite插件开发指南之Java篇0x00 Java 接口简介知其然更要知其所以然。在真正动手编写 Burp 插件之前，有必要对Burp提供的各个接口有一定的了解，同时要有一定的编程经验和能力。那么，在此篇中读者则有必要了解 Java 的接口技术。 接口（英文：Interface）在 Java 编程语言中是一个比较抽象的东西。熟悉 OOP 的同学可以用“类”的思想来理解接口。但是，要明白的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://static.php0.net/public/images/drops/20160525/2016052513193014611burp_tab.jpg">
+<meta property="og:image" content="http://static.php0.net/public/images/drops/20160525/2016052513192985524burp_json.jpg">
+<meta property="article:published_time" content="2021-04-02T07:31:16.000Z">
+<meta property="article:modified_time" content="2021-04-02T07:35:46.414Z">
+<meta property="article:author" content="一灯和尚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://static.php0.net/public/images/drops/20160525/2016052513193014611burp_tab.jpg">
+
+<link rel="canonical" href="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BJava%E7%AF%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BurpSuite插件开发指南之Java篇 | 一灯和尚</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">一灯和尚</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">沉迷学习，无法自拔</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mrknow001" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BJava%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/46807619.jpg">
+      <meta itemprop="name" content="一灯和尚">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="一灯和尚">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BurpSuite插件开发指南之Java篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-02 15:31:16 / 修改时间：15:35:46" itemprop="dateCreated datePublished" datetime="2021-04-02T15:31:16+08:00">2021-04-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">编程学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="BurpSuite插件开发指南之Java篇"><a href="#BurpSuite插件开发指南之Java篇" class="headerlink" title="BurpSuite插件开发指南之Java篇"></a>BurpSuite插件开发指南之Java篇</h1><h1 id="0x00-Java-接口简介"><a href="#0x00-Java-接口简介" class="headerlink" title="0x00 Java 接口简介"></a>0x00 Java 接口简介</h1><p>知其然更要知其所以然。在真正动手编写 Burp 插件之前，有必要对Burp提供的各个接口有一定的了解，同时要有一定的编程经验和能力。那么，在此篇中读者则有必要了解 Java 的接口技术。</p>
+<p>接口（英文：Interface）在 Java 编程语言中是一个比较抽象的东西。熟悉 OOP 的同学可以用“类”的思想来理解接口。但是，要明白的是，类与接口有相似的地方同时也有很多不同的地方。</p>
+<h2 id="接口的声明"><a href="#接口的声明" class="headerlink" title="接口的声明"></a>接口的声明</h2><p>接口的声明语法格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">[可见度] interface 接口名称 [extends 其他的类名] &#123;</span><br><span class="line">        &#x2F;&#x2F; 声明变量</span><br><span class="line">        &#x2F;&#x2F; 抽象方法</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>例如，Burp 的 接口声明原型如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">package burp;</span><br><span class="line"> </span><br><span class="line">public interface IBurpExtender</span><br><span class="line">&#123;</span><br><span class="line">    void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="接口的实现"><a href="#接口的实现" class="headerlink" title="接口的实现"></a>接口的实现</h2><p>一个接口可以被另外一个接口继承，也可以被一个类实现。当类实现接口的时候，类要实现接口中所有的方法。否则，类必须声明为抽象的类。类使用implements关键字实现接口。在类声明中，Implements关键字放在class声明后面。不熟悉Java编程的读者要牢记这几点。</p>
+<p>实现一个接口的语法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">... implements 接口名称[, 其他接口1, 其他接口2..., ...] ...</span><br></pre></td></tr></table></figure>
+
+<p>例如，编写 Burp 插件必须编写的 BurpExtender 类实现 IBurpExtender 和 IProxyListener 接口代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">package burp;</span><br><span class="line"> </span><br><span class="line">public class BurpExtender implements IBurpExtender, IProxyListener&#123;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 IBurpExtender 接口的 registerExtenderCallbacks 方法</span><br><span class="line">    @Override</span><br><span class="line">    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) &#123;</span><br><span class="line">        &#x2F;&#x2F; TODO here</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 IProxyListener 接口的 processProxyMessage 方法</span><br><span class="line">    @Override</span><br><span class="line">    public void processProxyMessage(boolean messageIsRequest,</span><br><span class="line">            IInterceptedProxyMessage message) &#123;</span><br><span class="line">        &#x2F;&#x2F; TODO here</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，在Burp提供的接口文档中，并不是所有的接口都可以用类实现，只有在接口的描述中说明了“该接口可以被实现”时，所对应的接口才可以被你所编写的类实现其方法。</p>
+<h1 id="0x01-Java-Swing-和-AWT-包简介"><a href="#0x01-Java-Swing-和-AWT-包简介" class="headerlink" title="0x01 Java Swing 和 AWT 包简介"></a>0x01 Java Swing 和 AWT 包简介</h1><p>Java Swing 是 Java Foundation  Classes（JFC）的一部分。在 Swing 中，包含了很多强大灵活的，跨平台的 GUI 控件。Swing 组件遵循(MVC)模型 - 视图 - 控制器架构，并提供了三个通用的顶层容器类 JFrame，JDialog 和 JApplet。在开发带有 GUI 的 BurpSuite  插件时，一般不会直接用到这三个顶层容器类，具体要看个人的设计和需求。</p>
+<p>下面是一些最常用的控件：</p>
+<ul>
+<li>JLabel 标签控件，JLabel 的对象是在容器中放置一个文本标签。</li>
+<li>JButton 按钮控件。</li>
+<li>JColorChooser 颜色选择控件，用于让用户操作和选择颜色。</li>
+<li>JCheckBox 选择框控件，支持分组。</li>
+<li>JRadioButton 单选框控件，支持分组。</li>
+<li>JList 列表控件。</li>
+<li>JComboBox 组合框控件。</li>
+<li>JTextField 文本框控件。</li>
+<li>JPasswordField 密码输入框控件。</li>
+<li>JTextArea 多行文本控件。</li>
+<li>ImageIcon 绘制图标的控件。</li>
+<li>JScrollbar 滚动条控件，支持水平和垂直滚动。</li>
+<li>JFileChooser 选择文件对话框。</li>
+<li>JProgressBar 进度条控件。</li>
+<li>JPanel 面板控件，此控件在开发插件时会经常用到。</li>
+</ul>
+<p>Swing 是在 AWT 的基础上构建的一套新的图形界面系统，所以 AWT 是 Java 实现图形界面的基础，图形控件的事件监听和响应也是由 AWT 完成的。不过，编写 Burp 插件所用到的图形组件和事件并不多，很容易上手。</p>
+<p>有关更多 GUI 组件的知识，请读者自行百度了解。在此不做过多阐述。</p>
+<h1 id="0x02-自定义-Burp-UI-标签"><a href="#0x02-自定义-Burp-UI-标签" class="headerlink" title="0x02 自定义 Burp UI 标签"></a>0x02 自定义 Burp UI 标签</h1><p>编写 GUI 的 Burp 插件在实际使用时更加易于操作和表达信息。当然，编写起来也十分简单，只需遵循一定的“套路”，就可以了。</p>
+<p>最终编写好的基本的样式如下图所示：</p>
+<p><img src="http://static.php0.net/public/images/drops/20160525/2016052513193014611burp_tab.jpg" alt="img"></p>
+<p>代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">&#x2F;*</span><br><span class="line"> *  BurpSuite 插件开发指南之 Java 篇</span><br><span class="line"> *  writend by Her0in </span><br><span class="line"> *&#x2F;</span><br><span class="line">package burp;</span><br><span class="line"> </span><br><span class="line">import java.awt.Component;</span><br><span class="line">import java.awt.event.MouseAdapter;</span><br><span class="line">import java.awt.event.MouseEvent;</span><br><span class="line">import java.io.PrintWriter;</span><br><span class="line">import javax.swing.JButton;</span><br><span class="line">import javax.swing.JPanel;</span><br><span class="line">import javax.swing.SwingUtilities;</span><br><span class="line"> </span><br><span class="line">public class BurpExtender implements IBurpExtender, ITab&#123;</span><br><span class="line"> </span><br><span class="line">    public PrintWriter stdout;</span><br><span class="line">    public IExtensionHelpers hps;</span><br><span class="line">    public IBurpExtenderCallbacks cbs;</span><br><span class="line"> </span><br><span class="line">    public JPanel jPanelMain;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks)         &#123;</span><br><span class="line"> </span><br><span class="line">        callbacks.setExtensionName(&quot;BurpExtender&quot;);</span><br><span class="line"> </span><br><span class="line">        this.hps &#x3D; callbacks.getHelpers();</span><br><span class="line">        this.cbs &#x3D; callbacks;</span><br><span class="line">        this.stdout &#x3D; new PrintWriter(callbacks.getStdout(), true);</span><br><span class="line"> </span><br><span class="line">        this.stdout.println(&quot;hello burp!&quot;);</span><br><span class="line"> </span><br><span class="line">        SwingUtilities.invokeLater(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line"> </span><br><span class="line">                jPanelMain &#x3D; new JPanel();</span><br><span class="line"> </span><br><span class="line">                JButton jButton &#x3D; new JButton(&quot;老司机,快点我!&quot;);</span><br><span class="line"> </span><br><span class="line">                jButton.addMouseListener(new MouseAdapter() &#123;</span><br><span class="line"> </span><br><span class="line">                    @Override</span><br><span class="line">                    public void mouseClicked(MouseEvent e)&#123;</span><br><span class="line">                        stdout.println(&quot;哔...&quot;);</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                &#125;);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 将按钮添加到 主面板 jPanelMain 中. </span><br><span class="line">                jPanelMain.add(jButton);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 设置自定义组件并添加标签</span><br><span class="line">                cbs.customizeUiComponent(jPanelMain);</span><br><span class="line">                cbs.addSuiteTab(BurpExtender.this);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 ITab 接口的 getTabCaption 方法</span><br><span class="line">    @Override</span><br><span class="line">    public String getTabCaption() &#123;</span><br><span class="line">        return &quot;Burp 标签测试&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 ITab 接口的 getUiComponent 方法</span><br><span class="line">    @Override</span><br><span class="line">    public Component getUiComponent() &#123;</span><br><span class="line">        return jPanelMain;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上述代码中，读者也能够看到，Java 的 Swing 图形编程有点蛋疼，需要一层层的编写。首先需要添加一个 JPanel 上去，然后在这个 JPanel 中再添加图形组件，如果还有上层的图形组件，则需要再添加一个 Panel 类型的控件。</p>
+<p>在这里有一个比较快速编写 Burp GUI插件的方法，先利用 NetBeans IDE 将图形界面拖拽式的写好，然后将上述显示控件的代码替换为显示这个 JFrame 的代码。之后编写相关的事件响应代码。</p>
+<h1 id="0x03-BurpSuite插件开发实例之-JSON-水坑-检测插件"><a href="#0x03-BurpSuite插件开发实例之-JSON-水坑-检测插件" class="headerlink" title="0x03 BurpSuite插件开发实例之 JSON 水坑 检测插件"></a>0x03 BurpSuite插件开发实例之 JSON 水坑 检测插件</h1><p>本小节，笔者将会使用一个实例来“抛砖引玉”式的描述编写带有 GUI 的 Burp 插件。读者可以把关注点放在图形控件的放置顺序和事件处理上，可以无视 JSON 水坑检测的逻辑是否严谨以及误报率，准确率是否科学等问题。</p>
+<p>最终编写好的插件如下图：</p>
+<p><img src="http://static.php0.net/public/images/drops/20160525/2016052513192985524burp_json.jpg" alt="img"></p>
+<p>顶部的控件是一个表格列表控件，会放置检测到的结果。下面两个 ITextEditor 分别显示当前 HTTP 数据包的请求信息和响应信息。</p>
+<p>代码就直接贴出来吧，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br></pre></td><td class="code"><pre><span class="line">#!java</span><br><span class="line">&#x2F;*</span><br><span class="line"> *  BurpSuite 插件开发指南之 Java 篇</span><br><span class="line"> *  writend by Her0in </span><br><span class="line"> *&#x2F;</span><br><span class="line">package burp;</span><br><span class="line"> </span><br><span class="line">import java.awt.BorderLayout;</span><br><span class="line">import java.awt.Component;</span><br><span class="line">import java.awt.Rectangle;</span><br><span class="line">import java.awt.event.ComponentEvent;</span><br><span class="line">import java.awt.event.ComponentListener;</span><br><span class="line">import java.io.PrintWriter;</span><br><span class="line">import java.util.Vector;</span><br><span class="line">import javax.swing.JPanel;</span><br><span class="line">import javax.swing.JScrollPane;</span><br><span class="line">import javax.swing.JSplitPane;</span><br><span class="line">import javax.swing.JTabbedPane;</span><br><span class="line">import javax.swing.ScrollPaneConstants;</span><br><span class="line">import javax.swing.SwingUtilities;</span><br><span class="line"> </span><br><span class="line">public class BurpExtender implements IBurpExtender, ITab, IHttpListener&#123;</span><br><span class="line"> </span><br><span class="line">    public PrintWriter stdout;</span><br><span class="line">    public IExtensionHelpers hps;</span><br><span class="line">    public IBurpExtenderCallbacks cbs;</span><br><span class="line"> </span><br><span class="line">    public IRequestInfo iRequestInfo;</span><br><span class="line">    public IResponseInfo iResponseInfo;</span><br><span class="line"> </span><br><span class="line">    public JPanel jPanel_top;</span><br><span class="line">    public JTabbedPane jTabbedPane; </span><br><span class="line">    public JScrollPane jScrollPane;</span><br><span class="line">    public JSplitPane jSplitPaneV;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 自己封装一个 Table 控件</span><br><span class="line">    private Her0inTable jsonTable;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F;请求，响应信息显示</span><br><span class="line">    public JPanel jPanel_reqInfo_left;</span><br><span class="line">    public JPanel jPanel_respInfo_right;</span><br><span class="line">    public JSplitPane jSplitPaneInfo;</span><br><span class="line">    public ITextEditor iRequestTextEditor;</span><br><span class="line">    public ITextEditor iResponseTextEditor;</span><br><span class="line"> </span><br><span class="line">    Boolean bFind &#x3D; false;</span><br><span class="line">    String strTags &#x3D; &quot;&quot;;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) &#123;</span><br><span class="line"> </span><br><span class="line">        callbacks.setExtensionName(&quot;JSON 水坑检测&quot;);</span><br><span class="line"> </span><br><span class="line">        this.hps &#x3D; callbacks.getHelpers();</span><br><span class="line">        this.cbs &#x3D; callbacks;</span><br><span class="line">        this.stdout &#x3D; new PrintWriter(callbacks.getStdout(), true);</span><br><span class="line"> </span><br><span class="line">        this.stdout.println(&quot;hello burp!&quot;);</span><br><span class="line"> </span><br><span class="line">        SwingUtilities.invokeLater(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 初始化垂直分隔面板</span><br><span class="line">                jSplitPaneV &#x3D; new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);</span><br><span class="line">                jSplitPaneV.setDividerLocation(0.5);</span><br><span class="line">                jSplitPaneV.setOneTouchExpandable(true);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 垂直分隔面板的顶部</span><br><span class="line">                jPanel_top &#x3D; new JPanel();</span><br><span class="line">                &#x2F;&#x2F; 设置垂直分隔面板顶部的子控件</span><br><span class="line">                &#x2F;&#x2F; 放置表格控件</span><br><span class="line">                jTabbedPane &#x3D; new JTabbedPane();</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 初始化 Burp 提供的 ITextEditor 编辑器接口</span><br><span class="line">                iRequestTextEditor &#x3D; cbs.createTextEditor();</span><br><span class="line">                iRequestTextEditor.setEditable(false);</span><br><span class="line"> </span><br><span class="line">                iResponseTextEditor &#x3D; cbs.createTextEditor();</span><br><span class="line">                iResponseTextEditor.setEditable(false);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 初始化 jsonTable</span><br><span class="line">                jsonTable &#x3D; new Her0inTable(iRequestTextEditor, iResponseTextEditor, stdout);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 最好放置一个 JScrollPane</span><br><span class="line">                JScrollPane jScrollPane1 &#x3D; new JScrollPane(jsonTable.getTab());</span><br><span class="line">                jScrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);</span><br><span class="line">                jScrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span><br><span class="line"> </span><br><span class="line">                jTabbedPane.scrollRectToVisible(new Rectangle(500, 70));</span><br><span class="line">                jTabbedPane.addTab(&quot;JSON 水坑检测&quot;, jScrollPane1);</span><br><span class="line"> </span><br><span class="line">                jScrollPane &#x3D; new JScrollPane(jTabbedPane);</span><br><span class="line">                jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);</span><br><span class="line">                jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span><br><span class="line">                jPanel_top.add(jScrollPane, BorderLayout.CENTER);</span><br><span class="line">                jPanel_top.setLayout(null);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 添加componentResized事件 否则在改变Burp 主窗口大小时会错位</span><br><span class="line">                jPanel_top.addComponentListener(new ComponentListener() &#123;</span><br><span class="line"> </span><br><span class="line">                    @Override</span><br><span class="line">                    public void componentShown(ComponentEvent e) &#123;</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                    @Override</span><br><span class="line">                    public void componentResized(ComponentEvent e) &#123;</span><br><span class="line">                            if(e.getSource() &#x3D;&#x3D; jPanel_top)&#123;</span><br><span class="line">                                    jScrollPane.setSize(jPanel_top.getSize().width - 5,</span><br><span class="line">                                                    jPanel_top.getSize().height - 5);                           </span><br><span class="line">                                    jScrollPane.setSize(jPanel_top.getSize().width - 10,</span><br><span class="line">                                                    jPanel_top.getSize().height - 10);</span><br><span class="line">                            &#125;</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                    @Override</span><br><span class="line">                    public void componentMoved(ComponentEvent e) &#123;</span><br><span class="line">                            &#x2F;&#x2F; TODO Auto-generated method stub</span><br><span class="line">                    &#125;</span><br><span class="line"> </span><br><span class="line">                    @Override</span><br><span class="line">                    public void componentHidden(ComponentEvent e) &#123;</span><br><span class="line">                            &#x2F;&#x2F; TODO Auto-generated method stub  </span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 设置垂直分隔面板底部的子控件</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 显示请求&#x2F;响应 信息的水平分隔面板初始化</span><br><span class="line">                jSplitPaneInfo &#x3D; new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);</span><br><span class="line">                jSplitPaneInfo.setDividerLocation(0.5);</span><br><span class="line">                jSplitPaneInfo.setOneTouchExpandable(true); </span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 初始化 请求，响应信息显示 面板                             </span><br><span class="line">                jPanel_reqInfo_left &#x3D; new JPanel();</span><br><span class="line">                jPanel_respInfo_right &#x3D; new JPanel();</span><br><span class="line"> </span><br><span class="line">                jPanel_reqInfo_left.setLayout(new BorderLayout());</span><br><span class="line">                jPanel_respInfo_right.setLayout(new BorderLayout());</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 将 Burp 提供的 ITextEditor 编辑器 添加到请求，响应信息显示 面板中</span><br><span class="line">                jPanel_reqInfo_left.add(iRequestTextEditor.getComponent(),</span><br><span class="line">                                BorderLayout.CENTER);</span><br><span class="line">                jPanel_respInfo_right.add(iResponseTextEditor.getComponent(),</span><br><span class="line">                                BorderLayout.CENTER);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 分别添加 请求，响应信息显示 面板 到 垂直分隔面板底部</span><br><span class="line">                jSplitPaneInfo.add(jPanel_reqInfo_left, JSplitPane.LEFT);</span><br><span class="line">                jSplitPaneInfo.add(jPanel_respInfo_right, JSplitPane.RIGHT);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 最后,为垂直分隔面板添加顶部面板和水平分隔面板</span><br><span class="line">                jSplitPaneV.add(jPanel_top, JSplitPane.TOP);</span><br><span class="line">                jSplitPaneV.add(jSplitPaneInfo, JSplitPane.BOTTOM);</span><br><span class="line"> </span><br><span class="line">                &#x2F;&#x2F; 设置自定义组件并添加标签</span><br><span class="line">                cbs.customizeUiComponent(jSplitPaneV);</span><br><span class="line">                cbs.addSuiteTab(BurpExtender.this);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"> </span><br><span class="line">        callbacks.registerHttpListener(this);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 ITab 接口的 getTabCaption 方法</span><br><span class="line">    @Override</span><br><span class="line">    public String getTabCaption() &#123;</span><br><span class="line">        return &quot;JSON 水坑检测&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    &#x2F;&#x2F; 实现 ITab 接口的 getUiComponent 方法</span><br><span class="line">    @Override</span><br><span class="line">    public Component getUiComponent() &#123;</span><br><span class="line">        return jSplitPaneV;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public void CheckJson(IHttpRequestResponse messageInfo) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                this.iRequestInfo &#x3D; this.hps.analyzeRequest(messageInfo);</span><br><span class="line">                this.iResponseInfo &#x3D; this.hps.analyzeResponse(messageInfo.getResponse());   </span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">                return ;</span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line">&#x2F;&#x2F;            stdout.println(messageInfo.getHttpService().getHost());</span><br><span class="line"> </span><br><span class="line">            this.bFind &#x3D; false;</span><br><span class="line">            java.util.List&lt;IParameter&gt; listIParameters &#x3D; iRequestInfo.getParameters();  </span><br><span class="line">            strTags &#x3D; &quot;&quot;;</span><br><span class="line">            for (IParameter param : listIParameters) &#123;</span><br><span class="line">                    String strName &#x3D; param.getName().toLowerCase();</span><br><span class="line">                    if(strName.indexOf(&quot;callback&quot;) !&#x3D; -1 || strName.indexOf(&quot;_callback&quot;) !&#x3D;-1 ||</span><br><span class="line">                                    strName.indexOf(&quot;cb&quot;) !&#x3D;-1 || strName.indexOf(&quot;_cb&quot;) !&#x3D; -1 ||</span><br><span class="line">                                    strName.indexOf(&quot;huidiao&quot;) !&#x3D;-1 )&#123;</span><br><span class="line">                            strTags +&#x3D; &quot;# find &#x3D;&gt; &quot; + strName;</span><br><span class="line">                            this.bFind &#x3D; true;</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">            if(this.bFind)&#123;</span><br><span class="line">                    Vector&lt;String&gt; vectorRow &#x3D; new Vector&lt;String&gt;();</span><br><span class="line">                    vectorRow.addElement(new String(Integer.toString(jsonTable.defaultTableModel.getRowCount())));</span><br><span class="line">                    vectorRow.addElement(new String(this.iRequestInfo.getUrl().getHost()));</span><br><span class="line">                    vectorRow.addElement(new String(this.iRequestInfo.getMethod()));</span><br><span class="line">                    if(this.iRequestInfo.getUrl().getQuery() !&#x3D; null)&#123;</span><br><span class="line">                            vectorRow.addElement(new String(this.iRequestInfo.getUrl().getPath() + &quot;?&quot; + this.iRequestInfo.getUrl().getQuery()));</span><br><span class="line">                    &#125;else&#123;</span><br><span class="line">                            vectorRow.addElement(new String(this.iRequestInfo.getUrl().getPath()));</span><br><span class="line">                    &#125;</span><br><span class="line">                    vectorRow.addElement(new String(strTags));</span><br><span class="line">                    jsonTable.defaultTableModel.addRow(vectorRow);</span><br><span class="line">                    jsonTable.iHttpList.add(messageInfo);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) &#123;</span><br><span class="line"> </span><br><span class="line">        if (!messageIsRequest) &#123;</span><br><span class="line">            &#x2F;&#x2F;JSON 检测</span><br><span class="line">            this.CheckJson(messageInfo);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>转自：<a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/aaaa6fA">https://www.tuicool.com/articles/aaaa6fA</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BAPI%E7%AF%87/" rel="prev" title="BurpSuite插件开发指南之API篇">
+      <i class="fa fa-chevron-left"></i> BurpSuite插件开发指南之API篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/02/BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BPython%E7%AF%87/" rel="next" title="BurpSuite插件开发指南之Python篇">
+      BurpSuite插件开发指南之Python篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E4%B9%8BJava%E7%AF%87"><span class="nav-number">1.</span> <span class="nav-text">BurpSuite插件开发指南之Java篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-Java-%E6%8E%A5%E5%8F%A3%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">0x00 Java 接口简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%A3%B0%E6%98%8E"><span class="nav-number">2.1.</span> <span class="nav-text">接口的声明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">接口的实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-Java-Swing-%E5%92%8C-AWT-%E5%8C%85%E7%AE%80%E4%BB%8B"><span class="nav-number">3.</span> <span class="nav-text">0x01 Java Swing 和 AWT 包简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-%E8%87%AA%E5%AE%9A%E4%B9%89-Burp-UI-%E6%A0%87%E7%AD%BE"><span class="nav-number">4.</span> <span class="nav-text">0x02 自定义 Burp UI 标签</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x03-BurpSuite%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B%E4%B9%8B-JSON-%E6%B0%B4%E5%9D%91-%E6%A3%80%E6%B5%8B%E6%8F%92%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">0x03 BurpSuite插件开发实例之 JSON 水坑 检测插件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="一灯和尚"
+      src="/images/46807619.jpg">
+  <p class="site-author-name" itemprop="name">一灯和尚</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      大佬们
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://assassins-white.github.io/" title="https:&#x2F;&#x2F;assassins-white.github.io&#x2F;" rel="noopener" target="_blank">白神博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.ji4n.cn/" title="http:&#x2F;&#x2F;www.ji4n.cn&#x2F;" rel="noopener" target="_blank">Jen博客</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.le31ei.top/" title="https:&#x2F;&#x2F;blog.le31ei.top&#x2F;" rel="noopener" target="_blank">le31ei博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">一灯和尚</span>
+</div>
+  <div class="powered-by">一只安全小菜鸡
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
